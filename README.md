@@ -2,9 +2,18 @@
 
 A comprehensive Streamlit web application for exploring the Unified Harmonic Field Framework through interactive mathematical and physical simulations.
 
-## Features
+## 🌙 Dark Theme Implementation
 
-### Implemented Tools (10/19)
+The dashboard features a complete dark theme with:
+- **Dark Background**: Professional dark color scheme (#0e1117)
+- **Custom Styling**: Enhanced UI elements with dark theme colors
+- **Matplotlib Integration**: Dark-themed plots with proper contrast
+- **Consistent Design**: Unified color palette across all components
+- **Accessibility**: High contrast ratios for readability
+
+### Features
+
+#### Implemented Tools (18/19) ✅
 
 1. **Dashboard Overview** 🎯
    - Comprehensive framework introduction
@@ -59,6 +68,51 @@ A comprehensive Streamlit web application for exploring the Unified Harmonic Fie
     - Implement Fibonacci growth (F_n = F_{n-1} + F_{n-2})
     - Generate phyllotaxis patterns (sunflower seeds, pine cones, etc.)
     - Scale by golden ratio φ with interactive visualizations
+
+12. **Overtone Packing Efficiency Optimizer** 🎯
+    - Use PuLP for linear programming to optimize harmonic packing with φ ratios
+    - Minimize phase conflicts in musical intervals or atomic orbitals
+    - Multiple optimization strategies (minimize conflicts, maximize resonance, balance efficiency)
+
+13. **Triadic Phenomena Mapper** 🔺
+    - Visualize triadic structures (spatial dimensions, force unifications, quantum states, consciousness fields)
+    - Overlay Fibonacci knots on 3D grids
+    - Trefoil lobe analysis and symmetry calculations
+
+14. **Phase-Tuning Consciousness Model** 🧠
+    - Agent-based simulation where consciousness modulates phases in harmonic field
+    - NetworkX modeling of phase-coherent attractors and decoherence
+    - Kuramoto synchronization with small-world network topology
+
+15. **Coordinated-Rotation Field Emulator** 🌪️
+    - Simulate E(θ, t) = A1 e^{i(m1 θ - ω t)} + A2 e^{i(σ m2 θ - ν t + φ0)}
+    - ΔΦ leading to trefoil topology when |m1 - σ m2| = 3
+    - Polarization knot visualization and field analysis
+
+16. **UHFF Wavefield Summator** 🌊
+    - Multi-oscillator summation simulator U(x, t) = Σ A_j sin(k_j x - ω_j t + φ_j)
+    - Detect rational ratios and phase alignments for "mass" as standing lattices
+    - Energy density analysis and standing wave detection
+
+17. **Toroidal Field Spiral Drawer** 🌀
+    - Draw golden spirals (φ-scaling) tracing toroidal fields
+    - Simulate DNA helices, magnetic fields, electromagnetic waves, vortex fields
+    - Vector field visualization and field strength analysis
+
+18. **Fibonacci Knot Generator** 🪢
+    - Generate Fibonacci-derived torus knots (e.g., (2,3))
+    - Parametric equations with interactive 3D visualization
+    - Knot classification, symmetry analysis, and curvature studies
+
+19. **Mode Superposition Visualizer** ⚛️
+    - Superposition of angular-momentum modes S(θ, t) = B1 e^{i(n1 θ - Ω t)} + B2 e^{i(σ n2 θ - Λ t + φ0)}
+    - Animate trefoil-like Lissajous figures for |n1 - σ n2| = 3
+    - 3D trajectory analysis and power spectrum computation
+
+20. **Tonal Torus Trajectory Simulator** 🎵
+    - Model pitch-class motion on T² manifold
+    - Apply scalar step operators T_k (θ → θ + kΔ) for seconds, thirds, and fourths
+    - Visualize three-lobed paths and analyze musical trajectories
 
 ### Placeholder Tools (Ready for Implementation)
 

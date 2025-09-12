@@ -8,6 +8,25 @@ import networkx as nx
 from pulp import LpProblem, LpVariable, lpSum, LpMinimize
 import pygame  # Note: Pygame may not work in Streamlit cloud, use for local only
 
+# Dark theme helper function for matplotlib
+def apply_dark_theme_to_plot():
+    """Apply dark theme styling to matplotlib plots"""
+    plt.style.use('dark_background')
+    plt.rcParams.update({
+        'axes.facecolor': '#1a1c23',
+        'figure.facecolor': '#0e1117',
+        'axes.edgecolor': '#30363d',
+        'axes.labelcolor': '#c9d1d9',
+        'xtick.color': '#c9d1d9',
+        'ytick.color': '#c9d1d9',
+        'text.color': '#c9d1d9',
+        'grid.color': '#30363d',
+        'grid.alpha': 0.3,
+        'legend.facecolor': '#1a1c23',
+        'legend.edgecolor': '#30363d',
+        'legend.labelcolor': '#c9d1d9'
+    })
+
 # Import custom modules
 from modules.harmonic_series import harmonic_series_generator
 from modules.standing_wave import standing_wave_simulator
@@ -29,7 +48,140 @@ from modules.phase_tuning import phase_tuning_consciousness_model
 from modules.triadic_phenomena import triadic_phenomena_mapper
 from modules.overtone_packing import overtone_packing_efficiency_optimizer
 
-st.set_page_config(page_title="Integrated Resonance Dashboard", layout="wide")
+# Dark theme configuration
+st.set_page_config(
+    page_title="Integrated Resonance Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS for dark theme enhancements
+st.markdown("""
+<style>
+    /* Dark theme background */
+    .stApp {
+        background-color: #0e1117;
+        color: #ffffff;
+    }
+
+    /* Sidebar styling */
+    .css-1d391kg, .css-12oz5g7 {
+        background-color: #1a1c23;
+    }
+
+    /* Header styling */
+    .css-10trblm, .css-1v0mbdj {
+        color: #00d4aa;
+    }
+
+    /* Metric cards */
+    .css-1r6slb0, .css-1otj3f4 {
+        background-color: #1a1c23;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+    }
+
+    /* Slider styling */
+    .css-1cpxqw2 {
+        background-color: #1a1c23;
+    }
+
+    /* Button styling */
+    .css-1cpxqw2 button {
+        background-color: #00d4aa;
+        color: #0e1117;
+        border: none;
+        border-radius: 4px;
+    }
+
+    /* Text input styling */
+    .css-1cpxqw2 input {
+        background-color: #30363d;
+        color: #ffffff;
+        border: 1px solid #484f58;
+        border-radius: 4px;
+    }
+
+    /* Select box styling */
+    .css-1cpxqw2 select {
+        background-color: #30363d;
+        color: #ffffff;
+        border: 1px solid #484f58;
+        border-radius: 4px;
+    }
+
+    /* Plot background */
+    .css-1r6slb0 .plotly-graph-div {
+        background-color: #1a1c23;
+    }
+
+    /* Markdown text */
+    .css-1r6slb0 p, .css-1r6slb0 li {
+        color: #c9d1d9;
+    }
+
+    /* Code blocks */
+    .css-1r6slb0 code {
+        background-color: #30363d;
+        color: #00d4aa;
+        border-radius: 3px;
+        padding: 2px 4px;
+    }
+
+    /* Tables */
+    .css-1r6slb0 table {
+        background-color: #1a1c23;
+        color: #c9d1d9;
+    }
+
+    .css-1r6slb0 th {
+        background-color: #30363d;
+        color: #00d4aa;
+    }
+
+    .css-1r6slb0 td {
+        border-bottom: 1px solid #30363d;
+    }
+
+    /* Expander styling */
+    .css-1r6slb0 .streamlit-expanderHeader {
+        background-color: #1a1c23;
+        color: #00d4aa;
+        border: 1px solid #30363d;
+        border-radius: 4px;
+    }
+
+    /* Success/info/warning messages */
+    .css-1r6slb0 .element-container .stAlert {
+        background-color: #1a1c23;
+        border: 1px solid #30363d;
+        color: #c9d1d9;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #1a1c23;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #30363d;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #484f58;
+    }
+
+    /* Matplotlib plot styling for dark theme */
+    .css-1r6slb0 .matplotlib-figure {
+        background-color: #1a1c23;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 st.title("Integrated Resonance Dashboard")
 st.markdown("Explore the Unified Harmonic Field Framework through interactive tools.")
@@ -158,18 +310,17 @@ def dashboard_overview():
     ax2.set_title('Harmonic Series')
     ax2.grid(True, alpha=0.3)
 
-    # Torus knot (2,3)
+    # Torus knot (2,3) - 2D projection
     t = np.linspace(0, 2*np.pi, 100)
     p, q = 2, 3
     R, r = 3, 1
     x = (R + r * np.cos(q * t)) * np.cos(p * t)
     y = (R + r * np.cos(q * t)) * np.sin(p * t)
-    z = r * np.sin(q * t)
-    ax3.plot(x, y, z, 'purple', linewidth=2)
-    ax3.set_title('(2,3) Torus Knot')
+    ax3.plot(x, y, 'purple', linewidth=2)
+    ax3.set_title('(2,3) Torus Knot (2D projection)')
     ax3.set_xlabel('X')
     ax3.set_ylabel('Y')
-    ax3.set_zlabel('Z')
+    ax3.grid(True, alpha=0.3)
 
     # Interference pattern
     x_int = np.linspace(0, 10, 100)
