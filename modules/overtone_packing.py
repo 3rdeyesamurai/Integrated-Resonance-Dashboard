@@ -51,7 +51,8 @@ def overtone_packing_efficiency_optimizer():
                 freq_j = candidates[j]
                 # Phase difference metric
                 phase_diff = abs(np.sin(2 * np.pi * freq_i) - np.sin(2 * np.pi * freq_j))
-                phase_conflicts.append(phase_diff * freq_vars[i] * freq_vars[j])
+                # Use binary variable multiplication properly
+                phase_conflicts.append(phase_diff * (freq_vars[i] + freq_vars[j] - 1))
 
         prob += lpSum(phase_conflicts)
 

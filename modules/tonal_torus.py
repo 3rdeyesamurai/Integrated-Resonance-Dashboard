@@ -200,7 +200,8 @@ def tonal_torus_trajectory_simulator():
         autocorr = np.correlate(pitch_classes - np.mean(pitch_classes),
                                pitch_classes - np.mean(pitch_classes), mode='full')
         autocorr = autocorr[autocorr.size // 2:]
-        peaks, _ = plt.find_peaks(autocorr, height=np.max(autocorr)*0.5)
+        from scipy.signal import find_peaks
+        peaks, _ = find_peaks(autocorr, height=np.max(autocorr)*0.5)
         if len(peaks) > 0:
             periodicity = peaks[0]
             st.write(f"**Detected Periodicity:** {periodicity} steps")

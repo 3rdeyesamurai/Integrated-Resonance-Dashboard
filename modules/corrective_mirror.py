@@ -3,9 +3,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sympy import symbols, sqrt, pi
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def corrective_mirror_constant_calculator():
-    st.header("Corrective Mirror Constant Calculator")
-    st.markdown("Compute C_m = 3/φ ≈ 1.854 and apply it as feedback in harmonic equilibrium simulations, plotting phase restoration over iterations.")
+    st.header("🔮 RVM-Enhanced Corrective Mirror Constant Calculator")
+    st.markdown("""
+    Compute C_m = 3/φ ≈ 1.854 with RVM digital roots integration.
+    Features phase restoration using RVM doubling circuit and 3-6-9 control axis.
+    """)
+
+    # RVM Corrective Mirror Integration
+    with st.expander("🔢 RVM Corrective Mirror Foundations"):
+        st.markdown("""
+        **Corrective Constant**: Cm = 3/φ ≈ 1.854 (phase restoration)
+        **RVM Digital Roots**: Applied to iteration parameters
+        **Doubling Circuit Feedback**: 1→2→4→8→7→5→1 sequence in corrections
+        **3-6-9 Control**: Triad values as equilibrium points
+        **Vortex Phase Dynamics**: Spiral convergence to golden ratio equilibrium
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Calculate golden ratio and corrective mirror constant
     phi = (1 + sqrt(5)) / 2
@@ -93,6 +130,82 @@ def corrective_mirror_constant_calculator():
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # RVM Vortex Phase Dynamics
+    st.subheader("🌀 RVM Vortex Phase Dynamics")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create vortex pattern for phase evolution
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Plot RVM 9-point circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color code based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+        else:
+            color = 'blue'
+
+        ax_rvm.scatter(x_point, y_point, s=200, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=12, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Plot phase evolution as spiral trajectory
+    phase_angles = np.array(phases) % (2 * np.pi)
+    spiral_radii = 1 + 2 * np.array(equilibrium_errors)  # Radius decreases with convergence
+
+    x_trajectory = spiral_radii * np.cos(phase_angles)
+    y_trajectory = spiral_radii * np.sin(phase_angles)
+
+    ax_rvm.plot(x_trajectory, y_trajectory, 'purple', linewidth=3, alpha=0.8, label='Phase Trajectory')
+    ax_rvm.scatter(x_trajectory[0], y_trajectory[0], s=100, c='green', marker='*', label='Start')
+    ax_rvm.scatter(x_trajectory[-1], y_trajectory[-1], s=100, c='red', marker='X', label='End')
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM Vortex Phase Dynamics')
+    ax_rvm.grid(True, alpha=0.3)
+    ax_rvm.legend()
+
+    # Add legend for RVM points
+    red_dot = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='red', markersize=10, label='3-6-9 Control Axis')
+    blue_dot = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Doubling Circuit')
+    ax_rvm.legend(handles=[red_dot, blue_dot, plt.Line2D([0], [0], color='purple', linewidth=2, label='Phase Trajectory')])
+
+    st.pyplot(fig_rvm)
+
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Simulation Parameters")
+    sim_params = {
+        "Initial Phase": initial_phase,
+        "Iterations": n_iterations,
+        "Feedback Strength": feedback_strength,
+        "Equilibrium Threshold": equilibrium_threshold,
+        "Final Phase": phases[-1] * 180 / np.pi,
+        "Final Error": equilibrium_errors[-1]
+    }
+
+    param_digital_roots = {param: digital_root(int(val * 100) if val < 1 else int(val))
+                          for param, val in sim_params.items()}
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Simulation Parameters:**")
+        for param, val in sim_params.items():
+            st.write(f"{param}: {val:.6f}")
+
+    with col2:
+        st.write("**Digital Roots:**")
+        for param, dr in param_digital_roots.items():
+            st.write(f"{param}: {dr}")
 
     # Analysis metrics
     st.subheader("Simulation Results")

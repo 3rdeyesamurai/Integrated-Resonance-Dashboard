@@ -4,9 +4,46 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from sympy import sqrt
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def toroidal_field_spiral_drawer():
-    st.header("Toroidal Field Spiral Drawer")
-    st.markdown("Use Matplotlib to draw golden spirals (φ-scaling) tracing toroidal fields, simulating applications like DNA helices or magnetic fields with vector field plots.")
+    st.header("🌀 RVM-Enhanced Toroidal Field Spiral Drawer")
+    st.markdown("""
+    Draw golden spirals with RVM 9-point winding on toroidal fields.
+    Features RVM toroidal topology with φ-scaling and corrective constant Cm = 3/φ.
+    """)
+
+    # RVM Toroidal Field Integration
+    with st.expander("🔢 RVM Toroidal Field Foundations"):
+        st.markdown("""
+        **9-Point Winding**: RVM vortex pattern mapped to toroidal surface
+        **Golden Ratio Scaling**: φ-scaling with corrective constant Cm = 3/φ
+        **Toroidal Topology**: Fundamental geometry for RVM field interactions
+        **Phase Reservoirs**: 3-6-9 nodes as energy storage points
+        **Vortex Dynamics**: Energy flow following doubling circuit
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Calculate golden ratio
     phi = (1 + sqrt(5)) / 2
@@ -193,6 +230,92 @@ def toroidal_field_spiral_drawer():
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # RVM 9-Point Winding Visualization
+    st.subheader("🌀 RVM 9-Point Toroidal Winding")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8), subplot_kw={'projection': '3d'})
+
+    # Plot torus surface
+    ax_rvm.plot_surface(X_torus, Y_torus, Z_torus, alpha=0.1, color='gray')
+
+    # Create RVM 9-point winding on torus
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    doubling_seq = vortex_doubling_sequence()
+
+    # Map RVM points to toroidal surface
+    for i, (point, rvm_val) in enumerate(zip(rvm_points, doubling_seq)):
+        # Distribute points around the torus
+        u_point = (i / 9) * 2 * np.pi  # Toroidal angle
+        v_point = np.pi / 4  # Poloidal angle (on the outer surface)
+
+        # Parametric equations for point on torus
+        x_point = (torus_major_radius + torus_minor_radius * np.cos(v_point)) * np.cos(u_point)
+        y_point = (torus_major_radius + torus_minor_radius * np.cos(v_point)) * np.sin(u_point)
+        z_point = torus_minor_radius * np.sin(v_point)
+
+        # Color code based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+            marker = '^'
+        else:
+            color = 'blue'
+            marker = 'o'
+
+        ax_rvm.scatter(x_point, y_point, z_point, s=200, c=color, marker=marker, edgecolors='black', alpha=0.9)
+        ax_rvm.text(x_point, y_point, z_point + 0.3, f'{point}', ha='center', va='bottom', fontsize=12, fontweight='bold')
+
+    # Draw winding path following doubling circuit
+    winding_points = []
+    for rvm_val in doubling_seq:
+        idx = rvm_points.index(rvm_val)
+        u_point = (idx / 9) * 2 * np.pi
+        v_point = np.pi / 4
+
+        x_point = (torus_major_radius + torus_minor_radius * np.cos(v_point)) * np.cos(u_point)
+        y_point = (torus_major_radius + torus_minor_radius * np.cos(v_point)) * np.sin(u_point)
+        z_point = torus_minor_radius * np.sin(v_point)
+
+        winding_points.append((x_point, y_point, z_point))
+
+    # Plot winding path
+    winding_points = np.array(winding_points)
+    ax_rvm.plot(winding_points[:, 0], winding_points[:, 1], winding_points[:, 2],
+               'purple', linewidth=3, alpha=0.8, label='RVM Winding Path')
+
+    ax_rvm.set_xlabel('X')
+    ax_rvm.set_ylabel('Y')
+    ax_rvm.set_zlabel('Z')
+    ax_rvm.set_title('RVM 9-Point Winding on Toroidal Surface')
+    ax_rvm.legend()
+    ax_rvm.set_xlim([-torus_major_radius-1, torus_major_radius+1])
+    ax_rvm.set_ylim([-torus_major_radius-1, torus_major_radius+1])
+    ax_rvm.set_zlim([-torus_minor_radius-1, torus_minor_radius+1])
+
+    st.pyplot(fig_rvm)
+
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Toroidal Parameters")
+    toroidal_params = {
+        "Major Radius": torus_major_radius,
+        "Minor Radius": torus_minor_radius,
+        "Spiral Turns": spiral_turns,
+        "Field Strength": field_strength,
+        "Spiral Pitch": spiral_pitch
+    }
+
+    param_digital_roots = {param: digital_root(int(val * 100) if val < 1 else int(val))
+                          for param, val in toroidal_params.items()}
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Toroidal Parameters:**")
+        for param, val in toroidal_params.items():
+            st.write(f"{param}: {val:.3f}")
+
+    with col2:
+        st.write("**Digital Roots:**")
+        for param, dr in param_digital_roots.items():
+            st.write(f"{param}: {dr}")
 
     # Analysis metrics
     st.subheader("Toroidal Field Analysis")

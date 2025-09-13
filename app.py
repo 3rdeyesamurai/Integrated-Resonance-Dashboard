@@ -55,130 +55,338 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for dark theme enhancements
+# Enhanced CSS for dark theme with improved readability and accessibility
 st.markdown("""
 <style>
-    /* Dark theme background */
+    /* ===== DARK THEME FOUNDATION ===== */
     .stApp {
         background-color: #0e1117;
         color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    /* Sidebar styling */
+    /* ===== SIDEBAR & NAVIGATION ===== */
     .css-1d391kg, .css-12oz5g7 {
-        background-color: #1a1c23;
+        background-color: #161b22;
+        border-right: 1px solid #30363d;
     }
 
-    /* Header styling */
+    /* ===== TYPOGRAPHY & TEXT ===== */
+    /* Headers with better contrast */
     .css-10trblm, .css-1v0mbdj {
-        color: #00d4aa;
+        color: #00d4aa !important;
+        font-weight: 600;
+        letter-spacing: -0.025em;
     }
 
-    /* Metric cards */
-    .css-1r6slb0, .css-1otj3f4 {
-        background-color: #1a1c23;
-        border: 1px solid #30363d;
-        border-radius: 8px;
+    /* Body text with improved readability */
+    .css-1r6slb0 p, .css-1r6slb0 li, .css-1r6slb0 div {
+        color: #e6edf3 !important;
+        line-height: 1.6;
+        font-size: 14px;
     }
 
-    /* Slider styling */
+    /* Subtle text for secondary information */
+    .css-1r6slb0 .stText, .css-1r6slb0 .stMarkdown {
+        color: #c9d1d9;
+    }
+
+    /* ===== INTERACTIVE ELEMENTS ===== */
+    /* Metric cards with enhanced contrast */
+    .css-1r6slb0 .css-1otj3f4 {
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Metric labels and values */
+    .css-1r6slb0 .css-1otj3f4 .css-1r0o7nj {
+        color: #00d4aa !important;
+        font-weight: 600;
+    }
+
+    .css-1r6slb0 .css-1otj3f4 .css-1xarl3l {
+        color: #e6edf3 !important;
+        font-weight: 500;
+    }
+
+    /* ===== FORM CONTROLS ===== */
+    /* Slider container */
     .css-1cpxqw2 {
-        background-color: #1a1c23;
+        background-color: #161b22;
+        border-radius: 6px;
+        padding: 8px;
     }
 
-    /* Button styling */
-    .css-1cpxqw2 button {
+    /* Slider track and handle */
+    .css-1cpxqw2 .stSlider .st-bs {
+        background-color: #30363d;
+    }
+
+    .css-1cpxqw2 .stSlider .st-bq {
         background-color: #00d4aa;
-        color: #0e1117;
-        border: none;
-        border-radius: 4px;
     }
 
-    /* Text input styling */
-    .css-1cpxqw2 input {
-        background-color: #30363d;
-        color: #ffffff;
-        border: 1px solid #484f58;
-        border-radius: 4px;
+    /* Buttons with better contrast */
+    .css-1cpxqw2 button, .stButton button {
+        background-color: #00d4aa !important;
+        color: #0e1117 !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease;
     }
 
-    /* Select box styling */
-    .css-1cpxqw2 select {
-        background-color: #30363d;
-        color: #ffffff;
-        border: 1px solid #484f58;
-        border-radius: 4px;
+    .css-1cpxqw2 button:hover, .stButton button:hover {
+        background-color: #00b894 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 212, 170, 0.3);
     }
 
-    /* Plot background */
-    .css-1r6slb0 .plotly-graph-div {
-        background-color: #1a1c23;
+    /* Text inputs with dark theme */
+    .css-1cpxqw2 input, .stTextInput input {
+        background-color: #30363d !important;
+        color: #e6edf3 !important;
+        border: 2px solid #484f58 !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
     }
 
-    /* Markdown text */
-    .css-1r6slb0 p, .css-1r6slb0 li {
-        color: #c9d1d9;
+    .css-1cpxqw2 input:focus, .stTextInput input:focus {
+        border-color: #00d4aa !important;
+        box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2) !important;
     }
 
-    /* Code blocks */
-    .css-1r6slb0 code {
-        background-color: #30363d;
-        color: #00d4aa;
-        border-radius: 3px;
-        padding: 2px 4px;
+    /* Select boxes */
+    .css-1cpxqw2 select, .stSelectbox select {
+        background-color: #30363d !important;
+        color: #e6edf3 !important;
+        border: 2px solid #484f58 !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
     }
 
-    /* Tables */
+    .css-1cpxqw2 select:focus, .stSelectbox select:focus {
+        border-color: #00d4aa !important;
+        box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2) !important;
+    }
+
+    /* ===== DATA DISPLAY ===== */
+    /* Tables with dark theme */
     .css-1r6slb0 table {
-        background-color: #1a1c23;
-        color: #c9d1d9;
+        background-color: #161b22 !important;
+        color: #e6edf3 !important;
+        border-collapse: collapse;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .css-1r6slb0 th {
-        background-color: #30363d;
-        color: #00d4aa;
+        background-color: #21262d !important;
+        color: #00d4aa !important;
+        font-weight: 600 !important;
+        padding: 12px 16px !important;
+        border-bottom: 2px solid #30363d !important;
     }
 
     .css-1r6slb0 td {
-        border-bottom: 1px solid #30363d;
+        padding: 10px 16px !important;
+        border-bottom: 1px solid #30363d !important;
+        color: #c9d1d9 !important;
     }
 
-    /* Expander styling */
+    .css-1r6slb0 tr:hover {
+        background-color: #21262d !important;
+    }
+
+    /* ===== CODE & TECHNICAL ===== */
+    /* Code blocks with syntax highlighting */
+    .css-1r6slb0 code {
+        background-color: #30363d !important;
+        color: #00d4aa !important;
+        border-radius: 4px !important;
+        padding: 2px 6px !important;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+        font-size: 13px !important;
+    }
+
+    /* Pre-formatted code blocks */
+    .css-1r6slb0 pre {
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
+        padding: 16px !important;
+    }
+
+    .css-1r6slb0 pre code {
+        background-color: transparent !important;
+        color: #e6edf3 !important;
+        padding: 0 !important;
+    }
+
+    /* ===== EXPANDABLE ELEMENTS ===== */
+    /* Expanders with better styling */
     .css-1r6slb0 .streamlit-expanderHeader {
-        background-color: #1a1c23;
-        color: #00d4aa;
-        border: 1px solid #30363d;
-        border-radius: 4px;
+        background-color: #161b22 !important;
+        color: #00d4aa !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease;
     }
 
-    /* Success/info/warning messages */
-    .css-1r6slb0 .element-container .stAlert {
-        background-color: #1a1c23;
-        border: 1px solid #30363d;
-        color: #c9d1d9;
+    .css-1r6slb0 .streamlit-expanderHeader:hover {
+        background-color: #21262d !important;
+        border-color: #00d4aa !important;
     }
 
-    /* Custom scrollbar */
+    /* ===== ALERTS & MESSAGES ===== */
+    /* Success messages */
+    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"] {
+        background-color: #161b22 !important;
+        border: 1px solid #238636 !important;
+        border-radius: 8px !important;
+        color: #56d364 !important;
+    }
+
+    /* Error messages */
+    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"][data-baseweb="notification-type-error"] {
+        background-color: #161b22 !important;
+        border: 1px solid #da3633 !important;
+        color: #f85149 !important;
+    }
+
+    /* Warning messages */
+    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"][data-baseweb="notification-type-warning"] {
+        background-color: #161b22 !important;
+        border: 1px solid #bb8009 !important;
+        color: #d29922 !important;
+    }
+
+    /* Info messages */
+    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"][data-baseweb="notification-type-info"] {
+        background-color: #161b22 !important;
+        border: 1px solid #79c0ff !important;
+        color: #79c0ff !important;
+    }
+
+    /* ===== VISUALIZATIONS ===== */
+    /* Plot containers */
+    .css-1r6slb0 .plotly-graph-div, .css-1r6slb0 .matplotlib-figure {
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ===== SCROLLBARS ===== */
+    /* Custom scrollbar styling */
     ::-webkit-scrollbar {
-        width: 8px;
+        width: 12px;
+        height: 12px;
     }
 
     ::-webkit-scrollbar-track {
-        background: #1a1c23;
+        background: #161b22;
+        border-radius: 6px;
     }
 
     ::-webkit-scrollbar-thumb {
         background: #30363d;
-        border-radius: 4px;
+        border-radius: 6px;
+        border: 2px solid #161b22;
     }
 
     ::-webkit-scrollbar-thumb:hover {
         background: #484f58;
     }
 
-    /* Matplotlib plot styling for dark theme */
-    .css-1r6slb0 .matplotlib-figure {
-        background-color: #1a1c23;
+    ::-webkit-scrollbar-corner {
+        background: #161b22;
+    }
+
+    /* ===== FOCUS STATES ===== */
+    /* Enhanced focus indicators for accessibility */
+    .css-1cpxqw2 input:focus, .css-1cpxqw2 select:focus, .css-1cpxqw2 button:focus {
+        outline: 2px solid #00d4aa !important;
+        outline-offset: 2px !important;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    /* Mobile-friendly adjustments */
+    @media (max-width: 768px) {
+        .css-1r6slb0 .css-1otj3f4 {
+            margin-bottom: 12px;
+        }
+
+        .css-1r6slb0 table {
+            font-size: 12px;
+        }
+
+        .css-1r6slb0 th, .css-1r6slb0 td {
+            padding: 8px 12px !important;
+        }
+    }
+
+    /* ===== SEMANTIC COLORS ===== */
+    /* Success states */
+    .css-1r6slb0 .stSuccess {
+        background-color: #161b22 !important;
+        border: 1px solid #238636 !important;
+        color: #56d364 !important;
+    }
+
+    /* Error states */
+    .css-1r6slb0 .stError {
+        background-color: #161b22 !important;
+        border: 1px solid #da3633 !important;
+        color: #f85149 !important;
+    }
+
+    /* Warning states */
+    .css-1r6slb0 .stWarning {
+        background-color: #161b22 !important;
+        border: 1px solid #bb8009 !important;
+        color: #d29922 !important;
+    }
+
+    /* Info states */
+    .css-1r6slb0 .stInfo {
+        background-color: #161b22 !important;
+        border: 1px solid #79c0ff !important;
+        color: #79c0ff !important;
+    }
+
+    /* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .stApp {
+            background-color: #000000;
+        }
+
+        .css-1r6slb0 p, .css-1r6slb0 li, .css-1r6slb0 div {
+            color: #ffffff !important;
+        }
+
+        .css-1r6slb0 .css-1otj3f4 {
+            border: 2px solid #ffffff !important;
+        }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        .css-1cpxqw2 button, .stButton button {
+            transition: none !important;
+        }
+
+        .css-1r6slb0 .streamlit-expanderHeader {
+            transition: none !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
