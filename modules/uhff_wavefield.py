@@ -4,9 +4,46 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from sympy import sqrt, Rational
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def uhff_wavefield_summator():
-    st.header("UHFF Wavefield Summator")
-    st.markdown("Build a multi-oscillator summation simulator U(x, t) = Σ A_j sin(k_j x - ω_j t + φ_j), using NumPy to detect rational ratios and phase alignments for 'mass' as standing lattices.")
+    st.header("🌊 RVM-Enhanced UHFF Wavefield Summator")
+    st.markdown("""
+    Build multi-oscillator summation with RVM ϕ-overtone nesting.
+    Features Fourier analysis with golden ratio convergence and vortex field mapping.
+    """)
+
+    # RVM Wavefield Integration
+    with st.expander("🔢 RVM Wavefield Summation Foundations"):
+        st.markdown("""
+        **ϕ-Overtone Nesting**: U(x,t) = Σ A_j sin(k_j x - ω_j t + φ_j) with golden ratio scaling
+        **Fourier Convergence**: F_n/F_{n-1} → φ with RVM corrections
+        **Vortex Field Patterns**: Standing wave lattices mapped to RVM 9-point circle
+        **3-6-9 Resonance Nodes**: Triad control in standing wave formation
+        **Toroidal Harmonic Substrates**: Unified field theory wave interactions
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Calculate golden ratio
     phi = (1 + sqrt(5)) / 2
@@ -193,9 +230,85 @@ def uhff_wavefield_summator():
 
     st.table(osc_data)
 
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Wavefield Parameters")
+    wavefield_params = {
+        "Number of Oscillators": n_oscillators,
+        "Base Amplitude": int(base_amplitude * 100),
+        "Base Frequency": int(base_frequency * 100),
+        "Spatial Range": int(spatial_range * 10),
+        "Standing Nodes": len(troughs),
+        "Standing Antinodes": len(peaks),
+        "Total Energy": int(total_energy * 10)
+    }
+
+    param_digital_roots = {param: digital_root(val) for param, val in wavefield_params.items()}
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Wavefield Parameters:**")
+        for param, val in wavefield_params.items():
+            st.write(f"{param}: {val}")
+
+    with col2:
+        st.write("**Digital Roots:**")
+        for param, dr in param_digital_roots.items():
+            st.write(f"{param}: {dr}")
+
+    # RVM Vortex Wavefield Mapping
+    st.subheader("🌀 RVM Vortex Wavefield Mapping")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create RVM 9-point circle for wavefield mapping
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Map wavefield parameters to RVM vortex circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+        else:
+            color = 'blue'
+
+        ax_rvm.scatter(x_point, y_point, s=200, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=12, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Overlay standing wave pattern scaled to vortex
+    scale_vortex = 2.5 / np.max(U_total) if np.max(U_total) > 0 else 1
+    x_vortex = []
+    y_vortex = []
+    colors_vortex = []
+
+    for i in range(0, len(x), 10):  # Sample every 10th point
+        angle = (x[i] / spatial_range) * 4 * np.pi  # Map position to angle
+        radius = scale_vortex * abs(U_total[i])
+        x_vortex.append(radius * np.cos(angle))
+        y_vortex.append(radius * np.sin(angle))
+        colors_vortex.append(U_total[i])
+
+    scatter_vortex = ax_rvm.scatter(x_vortex, y_vortex, c=colors_vortex, cmap='RdYlBu', s=10, alpha=0.6, label='Wavefield Pattern')
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM Vortex Wavefield Mapping')
+    ax_rvm.grid(True, alpha=0.3)
+    plt.colorbar(scatter_vortex, ax=ax_rvm, label='Wave Amplitude')
+
+    st.pyplot(fig_rvm)
+
     st.markdown(f"""
     **UHFF Wavefield Summation Theory:**
     - **Multi-Oscillator Superposition**: U(x,t) = Σ Aⱼ sin(kⱼx - ωⱼt + φⱼ)
+    - **ϕ-Overtone Nesting**: Golden ratio scaling with F_n/F_{n-1} → φ convergence
     - **Rational Frequency Ratios**: Simple integer relationships create coherent standing waves
     - **Mass as Standing Lattices**: Energy density U² represents "mass" distribution
     - **Phase Alignment**: Coherent phases create stable interference patterns
@@ -211,14 +324,15 @@ def uhff_wavefield_summator():
     - **Energy Localization**: "Mass" concentrates at antinodes, creating lattice structures
     - **Frequency Locking**: Rational ratios lead to stable, periodic patterns
     - **Phase Synchronization**: Coherent phases maintain stable interference patterns
+    - **RVM Integration**: Digital roots and vortex mapping reveal underlying harmonic patterns
 
     **Applications:**
     - **Crystallography**: Atomic lattice formation through wave interference
     - **Quantum Chemistry**: Molecular orbital formation from atomic wave functions
-    - **Optics**: Holographic interference patterns
+    - **Optics**: Holographic interference patterns with golden ratio scaling
     - **Seismology**: Earthquake wave interference in geological structures
     """)
 
     # Interactive exploration
     st.subheader("Interactive Exploration")
-    st.markdown("Adjust the number of oscillators and their parameters to explore how rational frequency ratios create stable standing wave lattices and energy concentrations.")
+    st.markdown("Adjust the number of oscillators and their parameters to explore how rational frequency ratios and golden ratio scaling create stable standing wave lattices and energy concentrations with RVM harmonic patterns.")

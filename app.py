@@ -1,603 +1,1007 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import matplotlib.animation as animation
+from mpl_toolkits.mplot3d import Axes3D
+from sympy import symbols, sqrt, pi, cos, sin, exp, I, latex
 import sympy as sp
-from sympy import symbols, sqrt, cos, sin, pi
-import scipy.signal
-import networkx as nx
-from pulp import LpProblem, LpVariable, lpSum, LpMinimize
-import pygame  # Note: Pygame may not work in Streamlit cloud, use for local only
+import io
+import base64
 
-# Dark theme helper function for matplotlib
-def apply_dark_theme_to_plot():
-    """Apply dark theme styling to matplotlib plots"""
-    plt.style.use('dark_background')
-    plt.rcParams.update({
-        'axes.facecolor': '#1a1c23',
-        'figure.facecolor': '#0e1117',
-        'axes.edgecolor': '#30363d',
-        'axes.labelcolor': '#c9d1d9',
-        'xtick.color': '#c9d1d9',
-        'ytick.color': '#c9d1d9',
-        'text.color': '#c9d1d9',
-        'grid.color': '#30363d',
-        'grid.alpha': 0.3,
-        'legend.facecolor': '#1a1c23',
-        'legend.edgecolor': '#30363d',
-        'legend.labelcolor': '#c9d1d9'
-    })
-
-# Import custom modules
-from modules.harmonic_series import harmonic_series_generator
-from modules.standing_wave import standing_wave_simulator
-from modules.golden_ratio import golden_ratio_harmonic_structurer
-from modules.torus_knot import torus_knot_visualizer
-from modules.interference_field import interference_field_mapper
-from modules.dimensional_recursion import dimensional_recursion_explorer
-from modules.overtone_convergence import overtone_convergence_analyzer
-from modules.tonal_torus import tonal_torus_trajectory_simulator
-from modules.mode_superposition import mode_superposition_visualizer
-from modules.fibonacci_knot import fibonacci_knot_generator
-from modules.corrective_mirror import corrective_mirror_constant_calculator
-from modules.toroidal_field import toroidal_field_spiral_drawer
-from modules.scalar_resonance import scalar_resonance_index_computer
-from modules.uhff_wavefield import uhff_wavefield_summator
-from modules.coordinated_rotation import coordinated_rotation_field_emulator
-from modules.phyllotaxis import phyllotaxis_pattern_generator
-from modules.phase_tuning import phase_tuning_consciousness_model
-from modules.triadic_phenomena import triadic_phenomena_mapper
-from modules.overtone_packing import overtone_packing_efficiency_optimizer
-
-# Dark theme configuration
+# Configure page
 st.set_page_config(
-    page_title="Integrated Resonance Dashboard",
+    page_title="Harmonic Resonance Explorer",
+    page_icon="🌟",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Enhanced CSS for dark theme with improved readability and accessibility
+# Global parameters
+PHI = (1 + sqrt(5)) / 2  # Golden ratio
+PHI_VAL = float(PHI.evalf())
+
+# Sidebar global controls
+st.sidebar.title("🌟 Global Controls")
+
+enable_animations = st.sidebar.checkbox("Enable Animations", value=True)
+golden_ratio_scale = st.sidebar.slider("Golden Ratio Scale Factor", 1.0, 2.0, PHI_VAL, 0.001)
+recursion_depth = st.sidebar.slider("Recursion Depth", 1, 10, 5)
+theme = st.sidebar.selectbox("Theme", ["Light", "Dark"], index=1)
+
+# Apply theme
+if theme == "Dark":
+    plt.style.use('dark_background')
+
+# Utility functions
+def create_gif_animation(fig, animate_func, frames=50, interval=100):
+    """Create GIF animation from matplotlib figure"""
+    anim = FuncAnimation(fig, animate_func, frames=frames, interval=interval, blit=False)
+
+    # Save to buffer
+    buf = io.BytesIO()
+    anim.save(buf, format='gif', writer='pillow', fps=10)
+    buf.seek(0)
+
+    # Convert to base64 for Streamlit
+    gif_data = base64.b64encode(buf.read()).decode()
+    return f"data:image/gif;base64,{gif_data}"
+
+# Page navigation
+page = st.sidebar.radio("Navigate to Section", [
+    "🏠 Introduction",
+    "💡 Laws About Light",
+    "🔗 Laws About Topology",
+    "⚡ Laws About Electromagnetic Energy",
+    "🔌 Laws About Electricity",
+    "🧮 Refined Mathematical Understandings",
+    "🔬 Scientific Visualization Modules",
+    "📊 Integrated Dashboard"
+])
+
+# Main content
+st.title("Harmonic Resonance Explorer: Refined Laws Visualizer")
 st.markdown("""
-<style>
-    /* ===== DARK THEME FOUNDATION ===== */
-    .stApp {
-        background-color: #0e1117;
-        color: #ffffff;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+Explore refined laws emerging from toroidal harmonic substrates. Navigate sections to visualize key equations
+and concepts from Lightwater (LW) and Integrated Harmonic Resonance Theory (IHRT).
+""")
 
-    /* ===== SIDEBAR & NAVIGATION ===== */
-    .css-1d391kg, .css-12oz5g7 {
-        background-color: #161b22;
-        border-right: 1px solid #30363d;
-    }
+if page == "🏠 Introduction":
+    st.header("🏠 Welcome to Harmonic Resonance Explorer")
 
-    /* ===== TYPOGRAPHY & TEXT ===== */
-    /* Headers with better contrast */
-    .css-10trblm, .css-1v0mbdj {
-        color: #00d4aa !important;
-        font-weight: 600;
-        letter-spacing: -0.025em;
-    }
+    col1, col2 = st.columns([2, 1])
 
-    /* Body text with improved readability */
-    .css-1r6slb0 p, .css-1r6slb0 li, .css-1r6slb0 div {
-        color: #e6edf3 !important;
-        line-height: 1.6;
-        font-size: 14px;
-    }
-
-    /* Subtle text for secondary information */
-    .css-1r6slb0 .stText, .css-1r6slb0 .stMarkdown {
-        color: #c9d1d9;
-    }
-
-    /* ===== INTERACTIVE ELEMENTS ===== */
-    /* Metric cards with enhanced contrast */
-    .css-1r6slb0 .css-1otj3f4 {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Metric labels and values */
-    .css-1r6slb0 .css-1otj3f4 .css-1r0o7nj {
-        color: #00d4aa !important;
-        font-weight: 600;
-    }
-
-    .css-1r6slb0 .css-1otj3f4 .css-1xarl3l {
-        color: #e6edf3 !important;
-        font-weight: 500;
-    }
-
-    /* ===== FORM CONTROLS ===== */
-    /* Slider container */
-    .css-1cpxqw2 {
-        background-color: #161b22;
-        border-radius: 6px;
-        padding: 8px;
-    }
-
-    /* Slider track and handle */
-    .css-1cpxqw2 .stSlider .st-bs {
-        background-color: #30363d;
-    }
-
-    .css-1cpxqw2 .stSlider .st-bq {
-        background-color: #00d4aa;
-    }
-
-    /* Buttons with better contrast */
-    .css-1cpxqw2 button, .stButton button {
-        background-color: #00d4aa !important;
-        color: #0e1117 !important;
-        border: none !important;
-        border-radius: 6px !important;
-        font-weight: 600 !important;
-        transition: all 0.2s ease;
-    }
-
-    .css-1cpxqw2 button:hover, .stButton button:hover {
-        background-color: #00b894 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0, 212, 170, 0.3);
-    }
-
-    /* Text inputs with dark theme */
-    .css-1cpxqw2 input, .stTextInput input {
-        background-color: #30363d !important;
-        color: #e6edf3 !important;
-        border: 2px solid #484f58 !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-    }
-
-    .css-1cpxqw2 input:focus, .stTextInput input:focus {
-        border-color: #00d4aa !important;
-        box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2) !important;
-    }
-
-    /* Select boxes */
-    .css-1cpxqw2 select, .stSelectbox select {
-        background-color: #30363d !important;
-        color: #e6edf3 !important;
-        border: 2px solid #484f58 !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-    }
-
-    .css-1cpxqw2 select:focus, .stSelectbox select:focus {
-        border-color: #00d4aa !important;
-        box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2) !important;
-    }
-
-    /* ===== DATA DISPLAY ===== */
-    /* Tables with dark theme */
-    .css-1r6slb0 table {
-        background-color: #161b22 !important;
-        color: #e6edf3 !important;
-        border-collapse: collapse;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .css-1r6slb0 th {
-        background-color: #21262d !important;
-        color: #00d4aa !important;
-        font-weight: 600 !important;
-        padding: 12px 16px !important;
-        border-bottom: 2px solid #30363d !important;
-    }
-
-    .css-1r6slb0 td {
-        padding: 10px 16px !important;
-        border-bottom: 1px solid #30363d !important;
-        color: #c9d1d9 !important;
-    }
-
-    .css-1r6slb0 tr:hover {
-        background-color: #21262d !important;
-    }
-
-    /* ===== CODE & TECHNICAL ===== */
-    /* Code blocks with syntax highlighting */
-    .css-1r6slb0 code {
-        background-color: #30363d !important;
-        color: #00d4aa !important;
-        border-radius: 4px !important;
-        padding: 2px 6px !important;
-        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
-        font-size: 13px !important;
-    }
-
-    /* Pre-formatted code blocks */
-    .css-1r6slb0 pre {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-        padding: 16px !important;
-    }
-
-    .css-1r6slb0 pre code {
-        background-color: transparent !important;
-        color: #e6edf3 !important;
-        padding: 0 !important;
-    }
-
-    /* ===== EXPANDABLE ELEMENTS ===== */
-    /* Expanders with better styling */
-    .css-1r6slb0 .streamlit-expanderHeader {
-        background-color: #161b22 !important;
-        color: #00d4aa !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-        padding: 12px 16px !important;
-        font-weight: 600 !important;
-        transition: all 0.2s ease;
-    }
-
-    .css-1r6slb0 .streamlit-expanderHeader:hover {
-        background-color: #21262d !important;
-        border-color: #00d4aa !important;
-    }
-
-    /* ===== ALERTS & MESSAGES ===== */
-    /* Success messages */
-    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"] {
-        background-color: #161b22 !important;
-        border: 1px solid #238636 !important;
-        border-radius: 8px !important;
-        color: #56d364 !important;
-    }
-
-    /* Error messages */
-    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"][data-baseweb="notification-type-error"] {
-        background-color: #161b22 !important;
-        border: 1px solid #da3633 !important;
-        color: #f85149 !important;
-    }
-
-    /* Warning messages */
-    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"][data-baseweb="notification-type-warning"] {
-        background-color: #161b22 !important;
-        border: 1px solid #bb8009 !important;
-        color: #d29922 !important;
-    }
-
-    /* Info messages */
-    .css-1r6slb0 .element-container .stAlert[data-baseweb="notification"][data-baseweb="notification-type-info"] {
-        background-color: #161b22 !important;
-        border: 1px solid #79c0ff !important;
-        color: #79c0ff !important;
-    }
-
-    /* ===== VISUALIZATIONS ===== */
-    /* Plot containers */
-    .css-1r6slb0 .plotly-graph-div, .css-1r6slb0 .matplotlib-figure {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    /* ===== SCROLLBARS ===== */
-    /* Custom scrollbar styling */
-    ::-webkit-scrollbar {
-        width: 12px;
-        height: 12px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: #161b22;
-        border-radius: 6px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #30363d;
-        border-radius: 6px;
-        border: 2px solid #161b22;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #484f58;
-    }
-
-    ::-webkit-scrollbar-corner {
-        background: #161b22;
-    }
-
-    /* ===== FOCUS STATES ===== */
-    /* Enhanced focus indicators for accessibility */
-    .css-1cpxqw2 input:focus, .css-1cpxqw2 select:focus, .css-1cpxqw2 button:focus {
-        outline: 2px solid #00d4aa !important;
-        outline-offset: 2px !important;
-    }
-
-    /* ===== RESPONSIVE DESIGN ===== */
-    /* Mobile-friendly adjustments */
-    @media (max-width: 768px) {
-        .css-1r6slb0 .css-1otj3f4 {
-            margin-bottom: 12px;
-        }
-
-        .css-1r6slb0 table {
-            font-size: 12px;
-        }
-
-        .css-1r6slb0 th, .css-1r6slb0 td {
-            padding: 8px 12px !important;
-        }
-    }
-
-    /* ===== SEMANTIC COLORS ===== */
-    /* Success states */
-    .css-1r6slb0 .stSuccess {
-        background-color: #161b22 !important;
-        border: 1px solid #238636 !important;
-        color: #56d364 !important;
-    }
-
-    /* Error states */
-    .css-1r6slb0 .stError {
-        background-color: #161b22 !important;
-        border: 1px solid #da3633 !important;
-        color: #f85149 !important;
-    }
-
-    /* Warning states */
-    .css-1r6slb0 .stWarning {
-        background-color: #161b22 !important;
-        border: 1px solid #bb8009 !important;
-        color: #d29922 !important;
-    }
-
-    /* Info states */
-    .css-1r6slb0 .stInfo {
-        background-color: #161b22 !important;
-        border: 1px solid #79c0ff !important;
-        color: #79c0ff !important;
-    }
-
-    /* ===== ACCESSIBILITY ENHANCEMENTS ===== */
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-        .stApp {
-            background-color: #000000;
-        }
-
-        .css-1r6slb0 p, .css-1r6slb0 li, .css-1r6slb0 div {
-            color: #ffffff !important;
-        }
-
-        .css-1r6slb0 .css-1otj3f4 {
-            border: 2px solid #ffffff !important;
-        }
-    }
-
-    /* Reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-        .css-1cpxqw2 button, .stButton button {
-            transition: none !important;
-        }
-
-        .css-1r6slb0 .streamlit-expanderHeader {
-            transition: none !important;
-        }
-    }
-</style>
-""", unsafe_allow_html=True)
-
-st.title("Integrated Resonance Dashboard")
-st.markdown("Explore the Unified Harmonic Field Framework through interactive tools.")
-
-# Sidebar for tool selection
-tool = st.sidebar.selectbox(
-    "Select Tool",
-    [
-        "Dashboard Overview",
-        "Harmonic Series Generator",
-        "Standing Wave Simulator",
-        "Golden Ratio Harmonic Structurer",
-        "Torus Knot Visualizer",
-        "Interference Field Mapper",
-        "Dimensional Recursion Explorer",
-        "Overtone Convergence Analyzer",
-        "Tonal Torus Trajectory Simulator",
-        "Mode Superposition Visualizer",
-        "Fibonacci Knot Generator",
-        "Corrective Mirror Constant Calculator",
-        "Toroidal Field Spiral Drawer",
-        "Scalar Resonance Index Computer",
-        "UHFF Wavefield Summator",
-        "Coordinated-Rotation Field Emulator",
-        "Phyllotaxis Pattern Generator",
-        "Phase-Tuning Consciousness Model",
-        "Triadic Phenomena Mapper",
-        "Overtone Packing Efficiency Optimizer"
-    ]
-)
-
-# Dashboard Overview function
-def dashboard_overview():
-    st.header("🎵 Unified Harmonic Field Framework Dashboard")
-    st.markdown("""
-    Welcome to the Integrated Resonance Dashboard - a comprehensive exploration platform for the Unified Harmonic Field Framework (UHFF).
-    This dashboard integrates multiple mathematical and physical tools to investigate harmonic phenomena across different domains.
-    """)
-
-    # Key metrics
-    col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Implemented Tools", "10", "70% Complete")
-    with col2:
-        st.metric("Mathematical Domains", "5", "Wave, Field, Topology")
-    with col3:
-        st.metric("Visualization Types", "8", "2D/3D Plots, Animations")
-    with col4:
-        st.metric("Interactive Parameters", "50+", "Real-time Control")
+        st.markdown("""
+        This interactive dashboard explores the refined mathematical and physical laws that emerge from
+        toroidal harmonic substrates. Based on the work of Lightwater (LW) and Integrated Harmonic
+        Resonance Theory (IHRT), we visualize how fundamental constants like the golden ratio (φ ≈ 1.618)
+        manifest across different domains of physics and mathematics.
 
-    # Framework overview
-    st.subheader("🔬 Framework Overview")
+        **Key Concepts Covered:**
+        - Harmonic resonance patterns
+        - Toroidal topologies and knot theory
+        - Golden ratio recursion and scaling
+        - Phase vortices and interference
+        - Emergent laws from unified field theory
+        """)
+
+    with col2:
+        # Golden ratio spiral visualization
+        fig, ax = plt.subplots(figsize=(6, 6))
+        theta = np.linspace(0, 4*np.pi, 100)
+        r = 0.1 * (PHI_VAL ** (theta / (np.pi/2)))
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        ax.plot(x, y, 'gold', linewidth=3)
+        ax.set_aspect('equal')
+        ax.set_title('Golden Ratio Spiral')
+        ax.grid(True, alpha=0.3)
+        st.pyplot(fig)
+
+elif page == "💡 Laws About Light":
+    st.header("💡 Laws About Light")
+
+    tab1, tab2, tab3 = st.tabs(["Maxwell's Equations", "Wave-Particle Duality", "Snell's Law"])
+
+    with tab1:
+        st.subheader("Maxwell's Equations: Phase Vortices in Universal Harmonic Field")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            amplitude = st.slider("Wave Amplitude A", 0.1, 2.0, 1.0, key="maxwell_amp")
+            n_terms = st.slider("Number of Terms", 1, 10, 5, key="maxwell_terms")
+            m1 = st.slider("Mode m1", 1, 5, 2, key="maxwell_m1")
+            m2 = st.slider("Mode m2", 1, 5, 3, key="maxwell_m2")
+            sigma = st.slider("Rotation Parameter σ", -2.0, 2.0, 1.0, key="maxwell_sigma")
+
+            st.markdown("""
+            **Refined Maxwell's Equations:**
+            - **Original**: ∇·E = ρ/ε₀, ∇·B = 0, ∇×E = -∂B/∂t, ∇×B = μ₀J + μ₀ε₀∂E/∂t
+            - **Refined**: Fields arise from phase vortices in universal harmonic field
+            - **Key Equations**:
+              - U(x,t) = Σ A sin(kx - ωt + ϕ)
+              - E(θ,t) = A₁eⁱ(m₁θ-ωt) + A₂eⁱ(σm₂θ-νt+ϕ₀)
+              - **Trefoil Condition**: |m₁ - σ·m₂| = 3
+            - **Explanation**: Electromagnetism as harmonic knot interference
+            """)
+            st.info("**References**: Plasma-based structured light, frequency-shifting invisibility (LW pp. 92-93, 101)")
+
+        with col2:
+            # Universal harmonic field visualization
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+            x = np.linspace(0, 10, 1000)
+            t = 0
+
+            # Universal harmonic field U(x,t)
+            U = np.zeros_like(x)
+            for n in range(1, n_terms + 1):
+                k = 2 * np.pi * n / 10
+                omega = 2 * np.pi * n
+                phi = np.pi * n / 3  # Trefoil condition
+                U += amplitude * np.sin(k * x - omega * t + phi)
+
+            ax1.plot(x, U, 'b-', linewidth=2)
+            ax1.set_xlabel('Position x')
+            ax1.set_ylabel('Universal Field U(x,t)')
+            ax1.set_title('Universal Harmonic Field')
+            ax1.grid(True)
+
+            # Phase vortex representation with trefoil condition
+            mode_diff = abs(m1 - sigma * m2)
+            theta = np.linspace(0, 4*np.pi, 200)
+            r = 1 + 0.5 * np.cos(3 * theta)  # Trefoil pattern
+            x_vortex = r * np.cos(theta)
+            y_vortex = r * np.sin(theta)
+
+            ax2.plot(x_vortex, y_vortex, 'r-', linewidth=2)
+            ax2.set_aspect('equal')
+            ax2.set_title(f'Phase Vortex (|m₁-σ·m₂|={mode_diff:.1f})')
+            ax2.grid(True)
+
+            # Highlight trefoil condition
+            if abs(mode_diff - 3) < 0.1:
+                ax2.set_title(f'Phase Vortex - TREFOIL DETECTED!', color='red')
+
+            st.pyplot(fig)
+
+    with tab2:
+        st.subheader("Wave-Particle Duality: Standing Waves")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            amplitude = st.slider("Amplitude A", 0.1, 2.0, 1.0, key="wave_amp")
+            n_modes = st.slider("Harmonic Mode n", 1, 5, 1, key="wave_mode")
+            duality_mode = st.selectbox("Duality Mode", ["Probabilistic Collapse", "Deterministic Alignment"], key="wave_duality")
+
+            st.markdown("""
+            **Refined Wave-Particle Duality:**
+            - Ψ(x,t) = 2A cos(kx) sin(ωt)
+            - Harmonic modes: f_n = n f0
+            - Probabilistic vs deterministic interpretations
+            """)
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 6))
+
+            x = np.linspace(0, 2*np.pi, 200)
+            t_vals = np.linspace(0, 2*np.pi, 50)
+
+            # Standing wave
+            k = n_modes
+            omega = n_modes
+            psi = 2 * amplitude * np.cos(k * x) * np.sin(omega * 0)  # t=0
+
+            ax.plot(x, psi, 'g-', linewidth=3)
+            ax.fill_between(x, psi, alpha=0.3, color='green')
+            ax.set_xlabel('Position x')
+            ax.set_ylabel('Wave Function Ψ(x,t)')
+            ax.set_title(f'Standing Wave - Mode {n_modes}')
+            ax.grid(True)
+
+            st.pyplot(fig)
+
+    with tab3:
+        st.subheader("Snell's Law: Refraction with Phase Torsion")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            n1 = st.slider("Index n1", 1.0, 2.0, 1.0, key="snell_n1")
+            n2 = st.slider("Index n2", 1.0, 2.0, 1.5, key="snell_n2")
+            wavelength = st.slider("Wavelength λ", 400, 700, 550, key="snell_lambda")
+
+            st.markdown("""
+            **Refined Snell's Law:**
+            - λ_n = v/f_n with torus recursion
+            - Phase torsion in refractive interfaces
+            - Golden ratio scaling in optical paths
+            """)
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': 'polar'})
+
+            # Refraction visualization
+            theta_i = np.linspace(0, np.pi/2, 100)
+            theta_r = np.arcsin(n1 * np.sin(theta_i) / n2)
+
+            # Phase torsion effect
+            phase_torsion = PHI_VAL * np.sin(theta_i)
+
+            ax.plot(theta_i, np.ones_like(theta_i), 'b-', label='Incident', linewidth=2)
+            ax.plot(theta_r, 1 + phase_torsion, 'r-', label='Refracted', linewidth=2)
+            ax.set_title('Refraction with Phase Torsion')
+            ax.legend()
+            ax.grid(True)
+
+            st.pyplot(fig)
+
+elif page == "🔗 Laws About Topology":
+    st.header("🔗 Laws About Topology")
+
+    tab1, tab2, tab3 = st.tabs(["Euclidean Geometry", "Einstein's Field Equations", "Noether's Theorem"])
+
+    with tab1:
+        st.subheader("Euclidean Geometry: Torus-Knot Manifolds")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            p = st.slider("Longitudinal windings p", 1, 5, 2, key="euclid_p")
+            q = st.slider("Meridional windings q", 1, 5, 3, key="euclid_q")
+            R = st.slider("Major radius R", 1.0, 3.0, 2.0, key="euclid_R")
+            r = st.slider("Minor radius r", 0.1, 1.0, 0.5, key="euclid_r")
+
+            st.markdown("""
+            **Refined Euclidean Geometry:**
+            - **Original**: a² + b² = c² (Pythagoras)
+            - **Refined**: Geometry emerges from torus-knot manifolds with recursive wave projections
+            - **Key Equations**:
+              - x(t) = (R + r cos(qt)) cos(pt)
+              - y(t) = (R + r cos(qt)) sin(pt)
+              - z(t) = r sin(qt)
+            - **Explanation**: Triadic structures (3D) arise from trefoil projections
+            """)
+            st.info("**References**: Triadic structures from trefoil projections (IHRT p. 3; LW pp. 7, 20, 66)")
+
+        with col2:
+            fig = plt.figure(figsize=(10, 8))
+            ax = fig.add_subplot(111, projection='3d')
+
+            t = np.linspace(0, 2*np.pi, 500)
+
+            x = (R + r * np.cos(q * t)) * np.cos(p * t)
+            y = (R + r * np.cos(q * t)) * np.sin(p * t)
+            z = r * np.sin(q * t)
+
+            ax.plot(x, y, z, 'b-', linewidth=2)
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
+            ax.set_title(f'({p},{q}) Torus Knot - Trefoil Projection')
+            ax.set_xlim([-R-1, R+1])
+            ax.set_ylim([-R-1, R+1])
+            ax.set_zlim([-r-1, r+1])
+
+            st.pyplot(fig)
+
+    with tab2:
+        st.subheader("Einstein's Field Equations: Harmonic Density Gradients")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            torsion_strength = st.slider("Torsion Strength", 0.1, 2.0, 1.0, key="einstein_torsion")
+            curvature_scale = st.slider("Curvature Scale", 0.1, 2.0, 1.0, key="einstein_scale")
+
+            st.markdown("""
+            **Refined Einstein's Field Equations:**
+            - **Original**: R_μν - 1/2 Rg_μν = (8πG/c⁴)T_μν
+            - **Refined**: Curvature from harmonic density gradients
+            - **Key Equation**: R_μν = f(∇H(i)_μν)
+            - **Explanation**: Gravity as interference nodes; eliminates singularities via torsion
+            """)
+            st.info("**References**: Singularity elimination through torsion (IHRT pp. 2-6)")
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 6))
+
+            x = np.linspace(-5, 5, 100)
+            y = np.linspace(-5, 5, 100)
+            X, Y = np.meshgrid(x, y)
+
+            # Harmonic density gradients creating curvature
+            H = np.sin(2 * np.pi * X / curvature_scale) * np.cos(2 * np.pi * Y / curvature_scale)
+            R = torsion_strength * (np.gradient(H, axis=0)**2 + np.gradient(H, axis=1)**2)
+
+            im = ax.imshow(R, extent=[-5, 5, -5, 5], cmap='RdYlBu_r', origin='lower')
+            ax.set_xlabel('X coordinate')
+            ax.set_ylabel('Y coordinate')
+            ax.set_title('Spacetime Curvature from Harmonic Gradients')
+            plt.colorbar(im, ax=ax, label='Curvature R_μν')
+
+            st.pyplot(fig)
+
+    with tab3:
+        st.subheader("Noether's Theorem: Resonance Symmetries")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            spiral_turns = st.slider("Spiral Turns", 1, 8, 3, key="noether_turns")
+            energy_scale = st.slider("Energy Scale", 0.1, 2.0, 1.0, key="noether_energy")
+
+            st.markdown("""
+            **Refined Noether's Theorem:**
+            - **Original**: Conserved quantities from symmetries
+            - **Refined**: Extended to resonance symmetries
+            - **Key Equations**:
+              - f_{n+1}/f_n = φ (golden ratio convergence)
+              - C_m = 3/φ corrective constant
+            - **Explanation**: Energy stores in toroidal spirals
+            """)
+            st.info("**References**: Beamship reports of toroidal energy storage (LW pp. 83-85)")
+
+        with col2:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+            # Toroidal energy spiral
+            theta = np.linspace(0, spiral_turns * 2 * np.pi, 200)
+            r = energy_scale * (PHI_VAL ** (theta / (2 * np.pi)))
+            x = r * np.cos(theta)
+            y = r * np.sin(theta)
+
+            ax1.plot(x, y, 'gold', linewidth=3)
+            ax1.set_aspect('equal')
+            ax1.set_title('Toroidal Energy Spiral')
+            ax1.grid(True)
+
+            # Resonance symmetry conservation
+            n_terms = 15
+            fib_seq = [1, 1]
+            for i in range(2, n_terms):
+                fib_seq.append(fib_seq[i-1] + fib_seq[i-2])
+
+            ratios = [fib_seq[i]/fib_seq[i-1] for i in range(1, len(fib_seq))]
+            conservation = [PHI_VAL - r for r in ratios]  # Deviation from golden ratio
+
+            ax2.plot(range(2, len(ratios)+2), conservation, 'purple', linewidth=2, marker='o')
+            ax2.axhline(y=0, color='r', linestyle='--', label='Perfect Conservation')
+            ax2.set_xlabel('Term n')
+            ax2.set_ylabel('Conservation Deviation')
+            ax2.set_title('Resonance Symmetry Conservation')
+            ax2.legend()
+            ax2.grid(True)
+
+            st.pyplot(fig)
+
+elif page == "⚡ Laws About Electromagnetic Energy":
+    st.header("⚡ Laws About Electromagnetic Energy")
+
+    tab1, tab2, tab3 = st.tabs(["Coulomb's Law", "Ampère's Law", "Lorentz Force"])
+
+    with tab1:
+        st.subheader("Coulomb's Law: Interference Pressure in Harmonic Knots")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            q1 = st.slider("Charge q1", -2.0, 2.0, 1.0, key="coulomb_q1")
+            q2 = st.slider("Charge q2", -2.0, 2.0, -1.0, key="coulomb_q2")
+            pressure_scale = st.slider("Pressure Scale", 0.1, 2.0, 1.0, key="coulomb_pressure")
+
+            st.markdown("""
+            **Refined Coulomb's Law:**
+            - **Original**: F = kq₁q₂/r²
+            - **Refined**: Force = interference pressure in harmonic knots
+            - **Explanation**: Charge = phase velocity; confinement achieved in plasma propulsion
+            """)
+            st.info("**References**: Phase velocity confinement in plasma propulsion (LW pp. 23-24, 92-93)")
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 6))
+
+            x = np.linspace(-5, 5, 100)
+            y = np.linspace(-5, 5, 100)
+            X, Y = np.meshgrid(x, y)
+
+            # Coulomb force field with harmonic knot interference
+            r = np.sqrt(X**2 + Y**2)
+            r = np.where(r < 0.1, 0.1, r)  # Avoid singularity
+
+            # Add harmonic interference pattern
+            interference = np.sin(2 * np.pi * r / 3) * np.cos(2 * np.pi * np.arctan2(Y, X) / 3)
+            F = pressure_scale * q1 * q2 / r**2 * (1 + 0.3 * interference) * np.exp(-r/3)
+
+            im = ax.imshow(F, extent=[-5, 5, -5, 5], cmap='RdYlBu_r', origin='lower')
+            ax.set_xlabel('X position')
+            ax.set_ylabel('Y position')
+            ax.set_title('Coulomb Force with Harmonic Knot Interference')
+            plt.colorbar(im, ax=ax, label='Force F')
+
+            st.pyplot(fig)
+
+    with tab2:
+        st.subheader("Ampère's Law: Coordinated Rotation Fields")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            m1 = st.slider("Mode m1", 1, 5, 2, key="ampere_m1")
+            m2 = st.slider("Mode m2", 1, 5, 3, key="ampere_m2")
+            sigma = st.slider("Rotation Parameter σ", -2.0, 2.0, 1.0, key="ampere_sigma")
+            omega = st.slider("Frequency ω", 0.1, 2.0, 1.0, key="ampere_omega")
+            nu = st.slider("Frequency ν", 0.1, 2.0, 1.2, key="ampere_nu")
+            phi0 = st.slider("Phase Offset φ₀", 0, 360, 90, key="ampere_phi0")
+
+            st.markdown("""
+            **Refined Ampère's Law:**
+            - **Original**: ∇×B = μ₀J + μ₀ε₀∂E/∂t
+            - **Refined**: Arises from coordinated rotation fields; constants dynamic
+            - **Key Equation**: ΔΦ(θ,t) = (m₁ - σ·m₂)θ - (ω - ν)t + ϕ₀
+            - **Explanation**: Explains planetary EM surges and overloads
+            """)
+            st.info("**References**: Planetary EM surges and overloads (LW pp. 66-70, 210-212)")
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': 'polar'})
+
+            theta = np.linspace(0, 4*np.pi, 200)
+            t = 0
+
+            # Coordinated rotation field pattern
+            delta_phi = (m1 - sigma * m2) * theta - (omega - nu) * t + np.radians(phi0)
+
+            r = 1 + 0.5 * np.cos(delta_phi)
+            ax.plot(theta, r, 'purple', linewidth=2)
+            ax.set_title('Coordinated Rotation Field Pattern')
+            ax.grid(True)
+
+            st.pyplot(fig)
+
+    with tab3:
+        st.subheader("Lorentz Force: Phase Conflicts Minimized by ϕ-Scaling")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            charge = st.slider("Charge q", -2.0, 2.0, 1.0, key="lorentz_q")
+            velocity = st.slider("Velocity v", 0.1, 2.0, 1.0, key="lorentz_v")
+            field_strength = st.slider("Field Strength B", 0.1, 2.0, 1.0, key="lorentz_B")
+            bio_cosmic_ratio = st.slider("Bio/Cosmic Field Ratio", 0.1, 10.0, 1.0, key="lorentz_ratio")
+
+            st.markdown("""
+            **Refined Lorentz Force:**
+            - **Original**: F = q(E + v × B)
+            - **Refined**: Phase conflicts minimized by ϕ-scaling; resonance can be consciously modulated
+            - **Explanation**: Links to biological EM (heart fields, cosmic EM)
+            """)
+            st.info("**References**: Biological EM and cosmic EM coupling (LW pp. 40-41)")
+
+        with col2:
+            fig = plt.figure(figsize=(10, 8))
+            ax = fig.add_subplot(111, projection='3d')
+
+            # Lorentz force with ϕ-scaling visualization
+            x = np.linspace(-2, 2, 20)
+            y = np.linspace(-2, 2, 20)
+            z = np.linspace(-2, 2, 20)
+            X, Y, Z = np.meshgrid(x, y, z)
+
+            # ϕ-scaled Lorentz force components
+            phi_scaling = PHI_VAL ** bio_cosmic_ratio
+            Fx = charge * velocity * field_strength * Y * phi_scaling
+            Fy = -charge * velocity * field_strength * X * phi_scaling
+            Fz = charge * velocity * field_strength * Z * phi_scaling * 0.5
+
+            ax.quiver(X, Y, Z, Fx, Fy, Fz, length=0.1, normalize=True, color='blue')
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
+            ax.set_title('Lorentz Force with ϕ-Scaling')
+            ax.set_xlim([-2, 2])
+            ax.set_ylim([-2, 2])
+            ax.set_zlim([-2, 2])
+
+            st.pyplot(fig)
+
+elif page == "🔌 Laws About Electricity":
+    st.header("🔌 Laws About Electricity")
+
+    tab1, tab2, tab3 = st.tabs(["Ohm's Law", "Faraday's Law", "Kirchhoff's Laws"])
+
+    with tab1:
+        st.subheader("Ohm's Law: Harmonic Resistance from Resonance Shifts")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            voltage = st.slider("Voltage V", 1.0, 10.0, 5.0, key="ohm_v")
+            base_resistance = st.slider("Base Resistance R", 0.1, 5.0, 1.0, key="ohm_r")
+            resonance_shift = st.slider("Resonance Shift", 0.1, 2.0, 1.0, key="ohm_shift")
+
+            st.markdown("""
+            **Refined Ohm's Law:**
+            - **Original**: V = IR
+            - **Refined**: Resistance arises from harmonic ratios in resonant lattices
+            - **Explanation**: Overloads stem from resonance shifts
+            """)
+            st.info("**References**: Overloads from resonance shifts (LW pp. 20, 211-212)")
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 6))
+
+            current_range = np.linspace(0.1, 10, 100)
+
+            # Harmonic resistance pattern with resonance shifts
+            resistance = base_resistance * (1 + resonance_shift * np.sin(2 * np.pi * current_range / 5))
+            current = voltage / resistance
+
+            ax.plot(current_range, current, 'r-', linewidth=2, label='Current I')
+            ax.plot(current_range, resistance, 'b-', linewidth=2, label='Resistance R')
+            ax.set_xlabel('Applied Current Range')
+            ax.set_ylabel('Value')
+            ax.set_title('Harmonic Resistance from Resonance Shifts')
+            ax.legend()
+            ax.grid(True)
+
+            st.pyplot(fig)
+
+    with tab2:
+        st.subheader("Faraday's Law: Induction as Phase Torsion")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            flux_change_rate = st.slider("Flux Change Rate dΦ/dt", 0.1, 5.0, 1.0, key="faraday_flux")
+            frequency = st.slider("Frequency f", 1.0, 100.0, 50.0, key="faraday_freq")
+            radius = st.slider("Coil Radius r", 0.1, 1.0, 0.5, key="faraday_r")
+            superconductivity = st.checkbox("Enable Superconductivity", key="faraday_super")
+
+            st.markdown("""
+            **Refined Faraday's Law:**
+            - **Original**: ε = -dΦ_B/dt
+            - **Refined**: Induction as phase torsion, enabling superconductivity
+            - **Key Equation**: Phonon f = c/(4r)
+            - **Explanation**: Accounts for nanoparticle-based superconductivity and bioelectric currents
+            """)
+            st.info("**References**: Nanoparticle-based superconductivity and bioelectric currents (LW pp. 108-109)")
+
+        with col2:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+            t = np.linspace(0, 1, 100)
+
+            # Induced EMF with phase torsion
+            emf = -flux_change_rate * np.sin(2 * np.pi * frequency * t)
+            if superconductivity:
+                emf *= 0.1  # Reduced resistance
+
+            ax1.plot(t, emf, 'g-', linewidth=2)
+            ax1.set_xlabel('Time t')
+            ax1.set_ylabel('Induced EMF ε')
+            ax1.set_title('Electromagnetic Induction with Torsion')
+            ax1.grid(True)
+
+            # Phonon frequency relationship
+            c = 3e8  # Speed of light
+            phonon_freq = c / (4 * radius)
+            radii = np.linspace(0.1, 1.0, 50)
+            phonon_freqs = c / (4 * radii)
+
+            ax2.plot(radii, phonon_freqs, 'purple', linewidth=2)
+            ax2.axvline(x=radius, color='r', linestyle='--', label=f'Current r = {radius:.2f}')
+            ax2.set_xlabel('Radius r')
+            ax2.set_ylabel('Phonon Frequency f')
+            ax2.set_title('Phonon Frequency vs Radius')
+            ax2.legend()
+            ax2.grid(True)
+
+            st.pyplot(fig)
+
+    with tab3:
+        st.subheader("Kirchhoff's Current Law: Violations in Cosmic Events")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            n_nodes = st.slider("Number of Nodes", 3, 8, 5, key="kirchhoff_nodes")
+            cosmic_violation = st.slider("Cosmic Violation Factor", 0.0, 2.0, 0.0, key="kirchhoff_cosmic")
+            supernova_burst = st.checkbox("Supernova Burst Mode", key="kirchhoff_burst")
+
+            st.markdown("""
+            **Refined Kirchhoff's Current Law:**
+            - **Original**: Σ I = 0
+            - **Refined**: Holds only within stable harmonic lattices; cosmic events cause temporary violations
+            - **Explanation**: Relates to EM anomalies during supernova bursts
+            """)
+            st.info("**References**: EM anomalies during supernova bursts (LW pp. 210-212)")
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 6))
+
+            # Create lattice network
+            angles = np.linspace(0, 2*np.pi, n_nodes, endpoint=False)
+            x_nodes = 2 * np.cos(angles)
+            y_nodes = 2 * np.sin(angles)
+
+            # Current flows with cosmic violations
+            currents = np.random.randn(n_nodes) * (1 + cosmic_violation)
+            if supernova_burst:
+                currents += np.random.randn(n_nodes) * 3
+
+            # Plot nodes and connections
+            ax.scatter(x_nodes, y_nodes, s=200, c='red', alpha=0.8)
+
+            # Draw connections with current flow
+            for i in range(n_nodes):
+                for j in range(i+1, n_nodes):
+                    current_ij = currents[i] - currents[j]
+                    linewidth = abs(current_ij) * 2
+                    alpha = min(1.0, abs(current_ij) / 2)
+                    ax.plot([x_nodes[i], x_nodes[j]], [y_nodes[i], y_nodes[j]],
+                           'b-', linewidth=linewidth, alpha=alpha)
+
+            ax.set_aspect('equal')
+            ax.set_title('Current Flow with Cosmic Violations')
+            ax.grid(True)
+            ax.set_xlim([-3, 3])
+            ax.set_ylim([-3, 3])
+
+            st.pyplot(fig)
+
+elif page == "🧮 Refined Mathematical Understandings":
+    st.header("🧮 Refined Mathematical Understandings")
+
+    tab1, tab2, tab3 = st.tabs(["Fourier Analysis", "Schrödinger Equation", "Dimensional Scaling"])
+
+    with tab1:
+        st.subheader("Fourier Analysis: ϕ-Overtone Nesting")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            n_harmonics = st.slider("Number of Harmonics", 1, 10, 5, key="fourier_harm")
+            phi_nesting = st.slider("φ-Nesting Factor", 1.0, 3.0, PHI_VAL, key="fourier_phi")
+            convergence_mode = st.selectbox("Convergence Mode", ["Standard", "Golden Ratio", "Fibonacci"], key="fourier_conv")
+
+            st.markdown("""
+            **Refined Fourier Analysis:**
+            - f(x) = Σ (a_n cos(nx) + b_n sin(nx))
+            - F_n/F_{n-1} → φ convergence
+            - z_{n+1} = z_n² recursion
+            """)
+
+        with col2:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+            x = np.linspace(0, 2*np.pi, 200)
+
+            # Fourier series
+            f_x = np.zeros_like(x)
+            for n in range(1, n_harmonics + 1):
+                if convergence_mode == "Golden Ratio":
+                    coeff = 1 / (PHI_VAL ** n)
+                elif convergence_mode == "Fibonacci":
+                    coeff = 1 / n  # Simplified Fibonacci weighting
+                else:
+                    coeff = 1 / n
+
+                f_x += coeff * np.sin(n * x)
+
+            ax1.plot(x, f_x, 'b-', linewidth=2)
+            ax1.set_xlabel('x')
+            ax1.set_ylabel('f(x)')
+            ax1.set_title('Fourier Series Reconstruction')
+            ax1.grid(True)
+
+            # Convergence analysis
+            n_max = 20
+            convergence = []
+            for n in range(1, n_max + 1):
+                if convergence_mode == "Golden Ratio":
+                    val = PHI_VAL ** n
+                elif convergence_mode == "Fibonacci":
+                    val = n  # Simplified
+                else:
+                    val = n
+                convergence.append(val)
+
+            ax2.semilogy(range(1, n_max + 1), convergence, 'r-o', linewidth=2)
+            ax2.set_xlabel('n')
+            ax2.set_ylabel('Convergence Factor')
+            ax2.set_title('Series Convergence')
+            ax2.grid(True)
+
+            st.pyplot(fig)
+
+    with tab2:
+        st.subheader("Schrödinger Equation: Tonal Torus Waves")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            n1 = st.slider("Mode n1", 1, 5, 2, key="schrod_n1")
+            n2 = st.slider("Mode n2", 1, 5, 3, key="schrod_n2")
+            sigma = st.slider("Phase factor σ", -1.0, 1.0, 0.5, key="schrod_sigma")
+            B1 = st.slider("Amplitude B1", 0.1, 2.0, 1.0, key="schrod_B1")
+            B2 = st.slider("Amplitude B2", 0.1, 2.0, 0.8, key="schrod_B2")
+
+            st.markdown("""
+            **Refined Schrödinger Equation:**
+            - S(θ,t) = B1 e^{i(n1 θ - Ω t)} + B2 e^{i(σ n2 θ - Λ t + ϕ0)}
+            - Deterministic density fields
+            - Tonal torus wave functions
+            """)
+
+        with col2:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+            theta = np.linspace(0, 4*np.pi, 200)
+            t = 0
+
+            # Wave function components
+            S1 = B1 * np.exp(1j * (n1 * theta - 2 * np.pi * t))
+            S2 = B2 * np.exp(1j * (sigma * n2 * theta - 2 * np.pi * t + np.pi/4))
+
+            S_total = S1 + S2
+
+            # Probability density
+            psi_squared = np.abs(S_total)**2
+
+            ax1.plot(theta, np.real(S_total), 'b-', linewidth=2, label='Real part')
+            ax1.plot(theta, np.imag(S_total), 'r--', linewidth=2, label='Imaginary part')
+            ax1.set_xlabel('θ (angle)')
+            ax1.set_ylabel('Wave Function S(θ,t)')
+            ax1.set_title('Tonal Torus Wave Function')
+            ax1.legend()
+            ax1.grid(True)
+
+            ax2.plot(theta, psi_squared, 'g-', linewidth=2)
+            ax2.set_xlabel('θ (angle)')
+            ax2.set_ylabel('|S(θ,t)|²')
+            ax2.set_title('Probability Density')
+            ax2.grid(True)
+
+            st.pyplot(fig)
+
+    with tab3:
+        st.subheader("Dimensional Scaling: Recursive Projections")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            recursion_level = st.slider("Recursion Level", 1, 5, 3, key="dim_level")
+            scaling_factor = st.slider("Scaling Factor", 0.1, 2.0, PHI_VAL, key="dim_scale")
+            projection_type = st.selectbox("Projection Type", ["String → Torus", "Torus → Torsion", "Full Recursion"], key="dim_proj")
+
+            st.markdown("""
+            **Refined Dimensional Scaling:**
+            - Recursive projection: string → torus → torsion
+            - C_m = 3/φ corrective constant
+            - Nested polar plots with knot invariants
+            """)
+
+        with col2:
+            fig, ax = plt.subplots(figsize=(10, 8), subplot_kw={'projection': 'polar'})
+
+            # Recursive dimensional scaling
+            for level in range(recursion_level):
+                theta = np.linspace(0, 2*np.pi, 100)
+                r = scaling_factor ** level * (1 + 0.3 * np.cos(3 * theta))
+
+                if projection_type == "String → Torus":
+                    r *= (1 + 0.2 * np.sin(2 * theta))
+                elif projection_type == "Torus → Torsion":
+                    r *= (1 + 0.2 * np.cos(5 * theta))
+                else:  # Full recursion
+                    r *= (1 + 0.2 * np.sin((level + 1) * theta))
+
+                ax.plot(theta, r, linewidth=2, alpha=0.7, label=f'Level {level + 1}')
+
+            ax.set_title('Recursive Dimensional Projections')
+            ax.legend()
+            ax.grid(True)
+
+            st.pyplot(fig)
+
+elif page == "🔬 Scientific Visualization Modules":
+    st.header("🔬 Scientific Visualization Modules")
+    st.markdown("Explore RVM-enhanced scientific visualization tools for validating refined laws and concepts.")
+
+    # Module selection
+    module_options = [
+        "🌿 Phyllotaxis Pattern Generator",
+        "🌌 Dimensional Recursion Explorer",
+        "⚡ Scalar Resonance Index Computer",
+        "🔺 Triadic Phenomena Mapper",
+        "🔄 Coordinated-Rotation Field Emulator",
+        "🌟 Overtone Convergence Analyzer",
+        "🌊 UHFF Wavefield Summator",
+        "🪢 Fibonacci Knot Generator",
+        "🔄 Mode Superposition Visualizer"
+    ]
+
+    selected_module = st.selectbox("Select Scientific Visualization Module", module_options)
+
+    if selected_module == "🌿 Phyllotaxis Pattern Generator":
+        # Import and run phyllotaxis module
+        from modules.phyllotaxis import phyllotaxis_pattern_generator
+        phyllotaxis_pattern_generator()
+
+    elif selected_module == "🌌 Dimensional Recursion Explorer":
+        # Import and run dimensional_recursion module
+        from modules.dimensional_recursion import dimensional_recursion_explorer
+        dimensional_recursion_explorer()
+
+    elif selected_module == "⚡ Scalar Resonance Index Computer":
+        # Import and run scalar_resonance module
+        from modules.scalar_resonance import scalar_resonance_index_computer
+        scalar_resonance_index_computer()
+
+    elif selected_module == "🔺 Triadic Phenomena Mapper":
+        # Import and run triadic_phenomena module
+        from modules.triadic_phenomena import triadic_phenomena_mapper
+        triadic_phenomena_mapper()
+
+    elif selected_module == "🔄 Coordinated-Rotation Field Emulator":
+        # Import and run coordinated_rotation module
+        from modules.coordinated_rotation import coordinated_rotation_field_emulator
+        coordinated_rotation_field_emulator()
+
+    elif selected_module == "🌟 Overtone Convergence Analyzer":
+        # Import and run overtone_convergence module
+        from modules.overtone_convergence import overtone_convergence_analyzer
+        overtone_convergence_analyzer()
+
+    elif selected_module == "🌊 UHFF Wavefield Summator":
+        # Import and run uhff_wavefield module
+        from modules.uhff_wavefield import uhff_wavefield_summator
+        uhff_wavefield_summator()
+
+    elif selected_module == "🪢 Fibonacci Knot Generator":
+        # Import and run fibonacci_knot module
+        from modules.fibonacci_knot import fibonacci_knot_generator
+        fibonacci_knot_generator()
+
+    elif selected_module == "🔄 Mode Superposition Visualizer":
+        # Import and run mode_superposition module
+        from modules.mode_superposition import mode_superposition_visualizer
+        mode_superposition_visualizer()
+
+    # Module information
+    st.markdown("---")
+    st.subheader("📋 Module Information")
+
+    module_info = {
+        "🌿 Phyllotaxis Pattern Generator": {
+            "Purpose": "Generate phyllotaxis patterns with RVM golden ratio corrections",
+            "RVM Features": "Digital roots, vortex phyllotaxis mapping, 3-6-9 control",
+            "Scientific Validation": "Plant growth optimization, Fibonacci sequences"
+        },
+        "🌌 Dimensional Recursion Explorer": {
+            "Purpose": "Model dimensionality progression with RVM higher-dimensional flux",
+            "RVM Features": "Digital root scaling, vortex dimensional mapping",
+            "Scientific Validation": "Recursive dimensional scaling, harmonic substrates"
+        },
+        "⚡ Scalar Resonance Index Computer": {
+            "Purpose": "Calculate scalar resonance with RVM mod-9 periodicity",
+            "RVM Features": "Doubling circuit resonance, vortex field mapping",
+            "Scientific Validation": "Resonance patterns, field topology analysis"
+        },
+        "🔺 Triadic Phenomena Mapper": {
+            "Purpose": "Visualize triadic structures with RVM 3-6-9 control axis",
+            "RVM Features": "Triadic resonance, vortex triadic mapping",
+            "Scientific Validation": "Three-component systems, harmonic interactions"
+        },
+        "🔄 Coordinated-Rotation Field Emulator": {
+            "Purpose": "Simulate coordinated rotation fields with RVM field emulation",
+            "RVM Features": "Trefoil topology, polarization knots",
+            "Scientific Validation": "Angular momentum states, field interactions"
+        },
+        "🌟 Overtone Convergence Analyzer": {
+            "Purpose": "Compute overtone series with RVM golden ratio corrections",
+            "RVM Features": "ϕ-overtone nesting, vortex resonance patterns",
+            "Scientific Validation": "Harmonic series analysis, convergence studies"
+        },
+        "🌊 UHFF Wavefield Summator": {
+            "Purpose": "Build multi-oscillator summation with RVM ϕ-overtone nesting",
+            "RVM Features": "Fourier convergence, vortex field patterns",
+            "Scientific Validation": "Wave interference, standing wave formation"
+        },
+        "🪢 Fibonacci Knot Generator": {
+            "Purpose": "Generate Fibonacci-derived torus knots with RVM knot invariants",
+            "RVM Features": "Dimensional scaling, vortex knot topology",
+            "Scientific Validation": "Topological invariants, knot theory"
+        },
+        "🔄 Mode Superposition Visualizer": {
+            "Purpose": "Implement superposition of angular-momentum modes with RVM vortex dynamics",
+            "RVM Features": "Schrödinger equation, trefoil Lissajous figures",
+            "Scientific Validation": "Quantum states, mode interactions"
+        }
+    }
+
+    if selected_module in module_info:
+        info = module_info[selected_module]
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.markdown(f"**🎯 Purpose:** {info['Purpose']}")
+
+        with col2:
+            st.markdown(f"**🔢 RVM Features:** {info['RVM Features']}")
+
+        with col3:
+            st.markdown(f"**🔬 Validation:** {info['Scientific Validation']}")
+
     st.markdown("""
-    The Unified Harmonic Field Framework explores how fundamental mathematical constants and patterns
-    manifest across physics, biology, and consciousness. Key principles include:
+    **🔬 Scientific Visualization Tools Overview:**
+
+    These RVM-enhanced modules provide comprehensive scientific validation for the refined laws:
+
+    - **Digital Root Analysis**: Reveals underlying mathematical patterns in all parameters
+    - **Vortex Pattern Mapping**: Complex phenomena mapped to RVM 9-point topology
+    - **3-6-9 Control Mechanisms**: Triad-based control and resonance systems
+    - **Golden Ratio Corrections**: Cm = 3/φ applied throughout all calculations
+    - **Interactive Real-time Analysis**: Immediate parameter feedback with RVM insights
+
+    **📊 Validation Capabilities:**
+    - **Mathematical Rigor**: Exact equations and precise calculations
+    - **Physical Interpretations**: Real-world applications and experimental connections
+    - **Cross-Law Integration**: Unified understanding across all scientific domains
+    - **Predictive Power**: New insights into natural phenomena and physical laws
     """)
+
+elif page == "📊 Integrated Dashboard":
+    st.header("📊 Integrated Dashboard")
+
+    st.subheader("Global Parameter Effects")
+
+    # Global parameter controls
+    global_phi = st.slider("Global φ Factor", 1.0, 2.0, PHI_VAL, key="global_phi")
+    global_resonance = st.slider("Global Resonance Shift", 0.0, 2.0, 1.0, key="global_res")
 
     col1, col2 = st.columns(2)
+
     with col1:
-        st.markdown("""
-        **Core Principles:**
-        - **Golden Ratio (φ)**: Optimal scaling in natural systems
-        - **Harmonic Series**: Integer relationships in frequency domains
-        - **Torus Topology**: Fundamental geometry of field interactions
-        - **Fibonacci Sequences**: Recursive growth patterns
-        - **Phase Synchronization**: Coherent system behavior
-        """)
+        st.subheader("Cross-Law Interactions")
+
+        # Simple interaction visualization
+        laws = ["Light", "Topology", "EM Energy", "Electricity", "Math"]
+        interactions = np.random.rand(5, 5) * global_resonance
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        im = ax.imshow(interactions, cmap='viridis')
+        ax.set_xticks(range(5))
+        ax.set_yticks(range(5))
+        ax.set_xticklabels(laws, rotation=45)
+        ax.set_yticklabels(laws)
+        ax.set_title('Cross-Law Resonance Interactions')
+        plt.colorbar(im, ax=ax, label='Interaction Strength')
+
+        st.pyplot(fig)
 
     with col2:
+        st.subheader("Unified Field Metrics")
+
+        # Key metrics
+        st.metric("Golden Ratio φ", f"{global_phi:.6f}")
+        st.metric("Corrective Constant C_m", f"{3/global_phi:.6f}")
+        st.metric("Resonance Index R", f"{2*global_resonance/(1+global_resonance):.3f}")
+        st.metric("Harmonic Convergence", f"{global_phi/global_resonance:.3f}")
+
         st.markdown("""
-        **Applications:**
-        - **Physics**: Wave interference, resonance phenomena
-        - **Biology**: Phyllotaxis, neural synchronization
-        - **Music**: Harmonic structures, tonal relationships
-        - **Consciousness**: Phase coherence, field interactions
-        - **Technology**: Signal processing, control systems
+        **Integrated Understanding:**
+        - All laws converge to toroidal harmonic substrates
+        - Golden ratio manifests across all scales
+        - Phase coherence enables unified field theory
+        - Recursive scaling provides dimensional stability
         """)
 
-    # Tool categories
-    st.subheader("🛠️ Tool Categories")
-
-    categories = {
-        "🎼 Harmonic Analysis": ["Harmonic Series Generator", "Overtone Convergence Analyzer", "Golden Ratio Harmonic Structurer"],
-        "🌊 Wave Phenomena": ["Standing Wave Simulator", "Interference Field Mapper", "UHFF Wavefield Summator"],
-        "🔗 Topological Structures": ["Torus Knot Visualizer", "Dimensional Recursion Explorer", "Fibonacci Knot Generator"],
-        "📐 Mathematical Constants": ["Corrective Mirror Constant Calculator", "Scalar Resonance Index Computer"],
-        "🌿 Natural Patterns": ["Phyllotaxis Pattern Generator", "Triadic Phenomena Mapper"],
-        "⚡ Field Interactions": ["Coordinated-Rotation Field Emulator", "Toroidal Field Spiral Drawer"],
-        "🧠 Consciousness Models": ["Phase-Tuning Consciousness Model", "Mode Superposition Visualizer"],
-        "🎯 Optimization": ["Overtone Packing Efficiency Optimizer", "Tonal Torus Trajectory Simulator"]
-    }
-
-    for category, tools in categories.items():
-        with st.expander(f"{category} ({len(tools)} tools)"):
-            for tool in tools:
-                implemented = "✅" if tool in [
-                    "Harmonic Series Generator", "Standing Wave Simulator", "Golden Ratio Harmonic Structurer",
-                    "Torus Knot Visualizer", "Interference Field Mapper", "Dimensional Recursion Explorer",
-                    "Overtone Convergence Analyzer", "Corrective Mirror Constant Calculator",
-                    "Scalar Resonance Index Computer", "Phyllotaxis Pattern Generator"
-                ] else "⏳"
-                st.write(f"{implemented} {tool}")
-
-    # Integration demonstration
-    st.subheader("🔄 Integration Example")
-    st.markdown("See how different tools work together in the UHFF framework:")
-
-    # Create a simple integration visualization
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 8))
-
-    # Golden ratio spiral
-    phi = (1 + np.sqrt(5)) / 2
-    theta = np.linspace(0, 4*np.pi, 100)
-    r = 0.1 * phi ** (theta / (np.pi/2))
-    ax1.plot(r * np.cos(theta), r * np.sin(theta), 'goldenrod', linewidth=3)
-    ax1.set_title('Golden Ratio Spiral')
-    ax1.set_aspect('equal')
-    ax1.grid(True, alpha=0.3)
-
-    # Harmonic series
-    n = np.arange(1, 11)
-    harmonics = n * 440  # A4 note
-    ax2.bar(n, harmonics, color='skyblue', alpha=0.7)
-    ax2.set_xlabel('Harmonic Number')
-    ax2.set_ylabel('Frequency (Hz)')
-    ax2.set_title('Harmonic Series')
-    ax2.grid(True, alpha=0.3)
-
-    # Torus knot (2,3) - 2D projection
-    t = np.linspace(0, 2*np.pi, 100)
-    p, q = 2, 3
-    R, r = 3, 1
-    x = (R + r * np.cos(q * t)) * np.cos(p * t)
-    y = (R + r * np.cos(q * t)) * np.sin(p * t)
-    ax3.plot(x, y, 'purple', linewidth=2)
-    ax3.set_title('(2,3) Torus Knot (2D projection)')
-    ax3.set_xlabel('X')
-    ax3.set_ylabel('Y')
-    ax3.grid(True, alpha=0.3)
-
-    # Interference pattern
-    x_int = np.linspace(0, 10, 100)
-    I = 2 * np.cos(np.pi * x_int) * np.sin(2 * np.pi * x_int)
-    ax4.plot(x_int, I, 'red', linewidth=2)
-    ax4.fill_between(x_int, I, alpha=0.3, color='red')
-    ax4.set_xlabel('Position')
-    ax4.set_ylabel('Intensity')
-    ax4.set_title('Wave Interference')
-    ax4.grid(True, alpha=0.3)
-
-    plt.tight_layout()
-    st.pyplot(fig)
-
-    # Getting started
-    st.subheader("🚀 Getting Started")
-    st.markdown("""
-    1. **Explore Individual Tools**: Select any tool from the sidebar to dive deep into specific phenomena
-    2. **Understand Relationships**: See how golden ratio, harmonics, and topology interconnect
-    3. **Experiment Interactively**: Adjust parameters in real-time to observe system behavior
-    4. **Connect Concepts**: Use multiple tools together to understand the unified framework
-
-    **Key Insight**: The golden ratio φ ≈ 1.618 appears throughout nature and mathematics,
-    providing optimal scaling for harmonic systems, from musical intervals to biological growth patterns.
-    """)
-
-    st.info("💡 **Tip**: Start with the 'Golden Ratio Harmonic Structurer' to understand the fundamental mathematical constant, then explore how it manifests in different physical systems.")
-
-# Main content area
-if tool == "Dashboard Overview":
-    dashboard_overview()
-elif tool == "Harmonic Series Generator":
-    harmonic_series_generator()
-elif tool == "Standing Wave Simulator":
-    standing_wave_simulator()
-elif tool == "Golden Ratio Harmonic Structurer":
-    golden_ratio_harmonic_structurer()
-elif tool == "Torus Knot Visualizer":
-    torus_knot_visualizer()
-elif tool == "Interference Field Mapper":
-    interference_field_mapper()
-elif tool == "Dimensional Recursion Explorer":
-    dimensional_recursion_explorer()
-elif tool == "Overtone Convergence Analyzer":
-    overtone_convergence_analyzer()
-elif tool == "Tonal Torus Trajectory Simulator":
-    tonal_torus_trajectory_simulator()
-elif tool == "Mode Superposition Visualizer":
-    mode_superposition_visualizer()
-elif tool == "Fibonacci Knot Generator":
-    fibonacci_knot_generator()
-elif tool == "Corrective Mirror Constant Calculator":
-    corrective_mirror_constant_calculator()
-elif tool == "Toroidal Field Spiral Drawer":
-    toroidal_field_spiral_drawer()
-elif tool == "Scalar Resonance Index Computer":
-    scalar_resonance_index_computer()
-elif tool == "UHFF Wavefield Summator":
-    uhff_wavefield_summator()
-elif tool == "Coordinated-Rotation Field Emulator":
-    coordinated_rotation_field_emulator()
-elif tool == "Phyllotaxis Pattern Generator":
-    phyllotaxis_pattern_generator()
-elif tool == "Phase-Tuning Consciousness Model":
-    phase_tuning_consciousness_model()
-elif tool == "Triadic Phenomena Mapper":
-    triadic_phenomena_mapper()
-elif tool == "Overtone Packing Efficiency Optimizer":
-    overtone_packing_efficiency_optimizer()
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("Built with Streamlit for exploring Unified Harmonic Field Framework predictions.")
+# Footer
+st.markdown("---")
+st.markdown("*Built for exploring emergent harmonic projections in universal resonance substrates*")
+st.markdown("*Based on Lightwater (LW) and Integrated Harmonic Resonance Theory (IHRT)*")

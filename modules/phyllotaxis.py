@@ -3,7 +3,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sympy import sqrt
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def phyllotaxis_pattern_generator():
+    st.header("🌿 RVM-Enhanced Phyllotaxis Pattern Generator")
+    st.markdown("""
+    Generate phyllotaxis patterns with RVM golden ratio corrections.
+    Features Fibonacci growth, vortex scaling, and digital root analysis.
+    """)
+
+    # RVM Phyllotaxis Integration
+    with st.expander("🔢 RVM Phyllotaxis Foundations"):
+        st.markdown("""
+        **Golden Ratio Corrections**: Cm = 3/φ applied to phyllotaxis scaling
+        **Fibonacci Digital Roots**: RVM analysis of Fibonacci numbers in patterns
+        **Vortex Growth Patterns**: Doubling circuit applied to seed arrangements
+        **3-6-9 Phyllotaxis**: Triad control in plant growth optimization
+        **Toroidal Seed Packing**: Harmonic substrates in natural growth
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
     st.header("Phyllotaxis Pattern Generator")
     st.markdown("Generate phyllotaxis patterns using Fibonacci growth scaled by the golden ratio φ.")
 
@@ -95,6 +134,60 @@ def phyllotaxis_pattern_generator():
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Fibonacci Numbers")
+    fib_digital_roots = [digital_root(fib) for fib in fib_sequence[:10]]
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Fibonacci Numbers:**")
+        st.write(fib_sequence[:10])
+    with col2:
+        st.write("**Digital Roots:**")
+        st.write(fib_digital_roots)
+
+    # RVM Vortex Phyllotaxis Pattern
+    st.subheader("🌀 RVM Vortex Phyllotaxis Mapping")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create RVM 9-point circle for phyllotaxis mapping
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles_rvm = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Map phyllotaxis points to RVM vortex circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles_rvm)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+        else:
+            color = 'blue'
+
+        ax_rvm.scatter(x_point, y_point, s=200, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=12, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Overlay phyllotaxis pattern scaled to vortex
+    scale_vortex = 2.5 / np.max(radii) if np.max(radii) > 0 else 1
+    x_vortex = scale_vortex * x
+    y_vortex = scale_vortex * y
+
+    ax_rvm.scatter(x_vortex, y_vortex, c=np.arange(n_seeds), cmap='viridis', s=10, alpha=0.6, label='Phyllotaxis Points')
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM Vortex Phyllotaxis Pattern')
+    ax_rvm.grid(True, alpha=0.3)
+    ax_rvm.legend()
+
+    st.pyplot(fig_rvm)
 
     # Pattern statistics
     st.subheader("Pattern Statistics")

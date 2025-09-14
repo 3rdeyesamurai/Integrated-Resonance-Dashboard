@@ -4,9 +4,46 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from sympy import symbols, sqrt, pi, cos, sin
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def scalar_resonance_index_computer():
-    st.header("Scalar Resonance Index Computer")
-    st.markdown("Calculate the scalar resonance index R = 2 |B1 B2| / (|B1|² + |B2|²) for tonal flow modes and visualize resonance strength on a color-coded torus.")
+    st.header("⚡ RVM-Enhanced Scalar Resonance Index Computer")
+    st.markdown("""
+    Calculate scalar resonance with RVM mod-9 periodicity.
+    Features resonance index R and vortex field visualization.
+    """)
+
+    # RVM Scalar Resonance Integration
+    with st.expander("🔢 RVM Scalar Resonance Foundations"):
+        st.markdown("""
+        **Mod-9 Periodicity**: Resonance patterns following RVM digital roots
+        **Doubling Circuit Resonance**: 1→2→4→8→7→5→1 sequence in field amplitudes
+        **3-6-9 Resonance Peaks**: Triad values as optimal resonance points
+        **Vortex Resonance Fields**: Toroidal patterns with RVM flow
+        **Golden Ratio Corrections**: Cm = 3/φ applied to resonance calculations
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Input parameters
     B1_magnitude = st.slider("B1 Magnitude", 0.1, 2.0, 1.0, step=0.1)
@@ -128,6 +165,80 @@ def scalar_resonance_index_computer():
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Resonance Parameters")
+    resonance_params = {
+        "B1 Magnitude": B1_magnitude,
+        "B2 Magnitude": B2_magnitude,
+        "Phase Difference": phase_difference,
+        "Frequency Ratio": frequency_ratio,
+        "Resonance Index R": R,
+        "Torus Resolution": torus_resolution
+    }
+
+    param_digital_roots = {param: digital_root(int(val * 100) if val < 1 else int(val))
+                          for param, val in resonance_params.items()}
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Resonance Parameters:**")
+        for param, val in resonance_params.items():
+            st.write(f"{param}: {val:.6f}")
+
+    with col2:
+        st.write("**Digital Roots:**")
+        for param, dr in param_digital_roots.items():
+            st.write(f"{param}: {dr}")
+
+    # RVM Vortex Resonance Mapping
+    st.subheader("🌀 RVM Vortex Resonance Mapping")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create RVM 9-point circle for resonance mapping
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Map resonance values to RVM vortex circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+        else:
+            color = 'blue'
+
+        ax_rvm.scatter(x_point, y_point, s=200, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=12, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Overlay resonance field scaled to vortex
+    scale_vortex = 2.5 / np.max(resonance_field) if np.max(resonance_field) > 0 else 1
+    x_vortex = []
+    y_vortex = []
+    colors_vortex = []
+
+    for i in range(0, len(U), 5):  # Sample every 5th point
+        for j in range(0, len(U[i]), 5):
+            x_vortex.append(scale_vortex * resonance_field[i,j] * np.cos(U[i,j]))
+            y_vortex.append(scale_vortex * resonance_field[i,j] * np.sin(V[i,j]))
+            colors_vortex.append(resonance_field[i,j])
+
+    scatter_vortex = ax_rvm.scatter(x_vortex, y_vortex, c=colors_vortex, cmap='viridis', s=10, alpha=0.6, label='Resonance Points')
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM Vortex Resonance Mapping')
+    ax_rvm.grid(True, alpha=0.3)
+    plt.colorbar(scatter_vortex, ax=ax_rvm, label='Resonance Index R')
+
+    st.pyplot(fig_rvm)
 
     # Detailed analysis
     st.subheader("Resonance Analysis")

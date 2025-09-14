@@ -4,9 +4,46 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from sympy import sqrt
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def triadic_phenomena_mapper():
-    st.header("Triadic Phenomena Mapper")
-    st.markdown("Visualize triadic structures (e.g., three spatial dimensions, force unifications) via trefoil lobes, using Matplotlib to overlay Fibonacci knots on 3D grids.")
+    st.header("🔺 RVM-Enhanced Triadic Phenomena Mapper")
+    st.markdown("""
+    Visualize triadic structures with RVM 3-6-9 control axis.
+    Features trefoil lobes and Fibonacci knots on toroidal substrates.
+    """)
+
+    # RVM Triadic Integration
+    with st.expander("🔢 RVM Triadic Phenomena Foundations"):
+        st.markdown("""
+        **3-6-9 Control Axis**: Triad values as fundamental control mechanisms
+        **Triadic Resonance**: Three-component systems with RVM periodicity
+        **Trefoil Topology**: Three-lobed structures following RVM flow
+        **Fibonacci Digital Roots**: RVM analysis of Fibonacci sequences
+        **Toroidal Triads**: Harmonic substrates for triadic phenomena
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Calculate golden ratio
     phi = (1 + sqrt(5)) / 2
@@ -161,6 +198,99 @@ def triadic_phenomena_mapper():
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Triadic Parameters")
+    triadic_params = {
+        "Scale Factor": scale_factor,
+        "Rotation Angle": rotation_angle,
+        "Fibonacci Order": fibonacci_order,
+        "Golden Ratio φ": phi_val,
+        "Lobe 1 Volume": lobe1_volume,
+        "Lobe 2 Volume": lobe2_volume,
+        "Lobe 3 Volume": lobe3_volume
+    }
+
+    param_digital_roots = {param: digital_root(int(val * 100) if val < 1 else int(val))
+                          for param, val in triadic_params.items()}
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Triadic Parameters:**")
+        for param, val in triadic_params.items():
+            st.write(f"{param}: {val:.6f}")
+
+    with col2:
+        st.write("**Digital Roots:**")
+        for param, dr in param_digital_roots.items():
+            st.write(f"{param}: {dr}")
+
+    # RVM 3-6-9 Control Axis Visualization
+    st.subheader("🌀 RVM 3-6-9 Control Axis in Triadic Structures")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create RVM 9-point circle for triadic control
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Map triadic components to RVM vortex circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+            size = 300
+        else:
+            color = 'blue'
+            size = 200
+
+        ax_rvm.scatter(x_point, y_point, s=size, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=14, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Overlay triadic structure scaled to vortex
+    scale_vortex = 2.5 / scale_factor if scale_factor > 0 else 1
+
+    # Sample points from triadic structures
+    sample_indices = np.random.choice(len(X.flatten()), size=min(500, len(X.flatten())), replace=False)
+
+    for idx in sample_indices:
+        x_pos = X.flatten()[idx] * scale_vortex
+        y_pos = Y.flatten()[idx] * scale_vortex
+
+        # Determine which component is dominant
+        val1 = structure_1.flatten()[idx]
+        val2 = structure_2.flatten()[idx]
+        val3 = structure_3.flatten()[idx]
+
+        max_val = max(val1, val2, val3)
+        if max_val == val1:
+            color = 'red'
+        elif max_val == val2:
+            color = 'blue'
+        else:
+            color = 'green'
+
+        ax_rvm.scatter(x_pos, y_pos, c=color, s=5, alpha=0.3)
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM 3-6-9 Control Axis in Triadic Structures')
+    ax_rvm.grid(True, alpha=0.3)
+
+    # Add legend
+    red_dot = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='red', markersize=10, label='3-6-9 Control (Component 1)')
+    blue_dot = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Doubling Circuit (Component 2)')
+    green_dot = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='green', markersize=10, label='Triadic Flow (Component 3)')
+    ax_rvm.legend(handles=[red_dot, blue_dot, green_dot])
+
+    st.pyplot(fig_rvm)
 
     # Analysis metrics
     st.subheader("Triadic Structure Analysis")

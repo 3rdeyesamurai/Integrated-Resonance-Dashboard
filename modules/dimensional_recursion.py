@@ -4,9 +4,46 @@ import matplotlib.pyplot as plt
 from sympy import symbols, sqrt, pi
 from mpl_toolkits.mplot3d import Axes3D
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def dimensional_recursion_explorer():
-    st.header("Dimensional Recursion Explorer")
-    st.markdown("Model dimensionality progression (1D string → 2D membrane → 3D torus) using recursive functions and SymPy projections scaled by φ.")
+    st.header("🌌 RVM-Enhanced Dimensional Recursion Explorer")
+    st.markdown("""
+    Model dimensionality progression with RVM higher-dimensional flux.
+    Features recursive projections scaled by φ and digital root analysis.
+    """)
+
+    # RVM Dimensional Integration
+    with st.expander("🔢 RVM Dimensional Recursion Foundations"):
+        st.markdown("""
+        **Higher-Dimensional Flux**: RVM energy flow through dimensional recursion
+        **Digital Root Scaling**: Applied to dimensional progression parameters
+        **Vortex Dimensionality**: 9-point circle mapped to dimensional levels
+        **3-6-9 Dimensional Control**: Triad values as dimensional resonances
+        **Toroidal Recursion**: Harmonic substrates in dimensional scaling
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Calculate golden ratio
     phi = (1 + sqrt(5)) / 2
@@ -185,6 +222,72 @@ def dimensional_recursion_explorer():
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Dimensional Parameters")
+    dim_params = {
+        "Recursion Depth": recursion_depth,
+        "Base Scale": base_scale,
+        "Golden Ratio φ": phi_val,
+        "Max Points": len(all_points)
+    }
+
+    param_digital_roots = {param: digital_root(int(val * 100) if val < 1 else int(val))
+                          for param, val in dim_params.items()}
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Dimensional Parameters:**")
+        for param, val in dim_params.items():
+            st.write(f"{param}: {val:.6f}")
+
+    with col2:
+        st.write("**Digital Roots:**")
+        for param, dr in param_digital_roots.items():
+            st.write(f"{param}: {dr}")
+
+    # RVM Vortex Dimensional Mapping
+    st.subheader("🌀 RVM Vortex Dimensional Mapping")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create RVM 9-point circle for dimensional mapping
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Map dimensional levels to RVM vortex circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+        else:
+            color = 'blue'
+
+        ax_rvm.scatter(x_point, y_point, s=200, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=12, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Overlay dimensional structure scaled to vortex
+    if all_points:
+        scale_vortex = 2.5 / max([abs(p[0]) for p in all_points] + [abs(p[1]) for p in all_points] + [abs(p[2]) for p in all_points] + [1])
+        x_vortex = [p[0] * scale_vortex for p in all_points]
+        y_vortex = [p[1] * scale_vortex for p in all_points]
+
+        ax_rvm.scatter(x_vortex, y_vortex, c=range(len(all_points)), cmap='viridis', s=5, alpha=0.6, label='Dimensional Points')
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM Vortex Dimensional Mapping')
+    ax_rvm.grid(True, alpha=0.3)
+    ax_rvm.legend()
+
+    st.pyplot(fig_rvm)
 
     # Statistics
     st.subheader("Recursion Statistics")

@@ -4,9 +4,46 @@ import matplotlib.pyplot as plt
 import scipy.signal
 from sympy import sqrt
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def overtone_convergence_analyzer():
-    st.header("Overtone Convergence Analyzer")
-    st.markdown("Compute overtone series with golden ratio spacing and analyze resonance efficiency.")
+    st.header("🌟 RVM-Enhanced Overtone Convergence Analyzer")
+    st.markdown("""
+    Compute overtone series with RVM golden ratio corrections and analyze resonance efficiency.
+    Features ϕ-overtone nesting and Fibonacci convergence analysis.
+    """)
+
+    # RVM Overtone Integration
+    with st.expander("🔢 RVM Overtone Convergence Foundations"):
+        st.markdown("""
+        **ϕ-Overtone Nesting**: F_n/F_{n-1} → φ convergence with RVM corrections
+        **Fibonacci Digital Roots**: RVM analysis of overtone sequences
+        **Vortex Resonance Patterns**: Doubling circuit in harmonic spacing
+        **3-6-9 Overtone Control**: Triad resonances in overtone series
+        **Toroidal Harmonic Substrates**: Unified field theory connections
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Calculate golden ratio
     phi = (1 + sqrt(5)) / 2
@@ -116,10 +153,73 @@ def overtone_convergence_analyzer():
         convergence_rate = np.mean(np.abs(np.array(ratios) - phi_val))
         st.metric("Convergence Rate to φ", f"{convergence_rate:.6f}")
 
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Overtone Frequencies")
+    overtone_digital_roots = [digital_root(int(freq)) for freq in frequencies]
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Overtone Frequencies:**")
+        st.write([f"{freq:.1f}" for freq in frequencies])
+    with col2:
+        st.write("**Digital Roots:**")
+        st.write(overtone_digital_roots)
+
+    # RVM Vortex Overtone Mapping
+    st.subheader("🌀 RVM Vortex Overtone Mapping")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create RVM 9-point circle for overtone mapping
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Map overtone frequencies to RVM vortex circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+        else:
+            color = 'blue'
+
+        ax_rvm.scatter(x_point, y_point, s=200, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=12, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Overlay overtone series scaled to vortex
+    scale_vortex = 2.5 / max(frequencies) if frequencies else 1
+    x_vortex = []
+    y_vortex = []
+    colors_vortex = []
+
+    for i, freq in enumerate(frequencies):
+        angle = (i / len(frequencies)) * 4 * np.pi  # Spiral out
+        radius = scale_vortex * freq * 0.1
+        x_vortex.append(radius * np.cos(angle))
+        y_vortex.append(radius * np.sin(angle))
+        colors_vortex.append(i / len(frequencies))
+
+    scatter_vortex = ax_rvm.scatter(x_vortex, y_vortex, c=colors_vortex, cmap='viridis', s=30, alpha=0.7, label='Overtone Series')
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM Vortex Overtone Mapping')
+    ax_rvm.grid(True, alpha=0.3)
+    plt.colorbar(scatter_vortex, ax=ax_rvm, label='Overtone Number')
+
+    st.pyplot(fig_rvm)
+
     st.markdown(f"""
     **Analysis Results:**
     - **Spacing Type:** {spacing_type}
     - Golden ratio spacing shows optimal convergence for harmonic resonance
     - FFT analysis reveals the frequency content and resonance peaks
     - Spectral metrics indicate the efficiency of energy distribution
+    - **RVM Integration:** Digital roots and vortex mapping reveal underlying patterns
     """)

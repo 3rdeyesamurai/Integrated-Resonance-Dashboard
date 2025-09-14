@@ -4,9 +4,46 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from sympy import sqrt
 
+def digital_root(n):
+    """Calculate digital root of a number (n mod 9, with 9 as singularity)"""
+    if n == 0:
+        return 9
+    return 1 + (n - 1) % 9
+
+def vortex_doubling_sequence():
+    """Generate RVM doubling circuit sequence: 1→2→4→8→7→5→1"""
+    sequence = [1]
+    current = 1
+    for _ in range(6):
+        current = (current * 2) % 9
+        if current == 0:
+            current = 9
+        sequence.append(current)
+    return sequence
+
 def fibonacci_knot_generator():
-    st.header("Fibonacci Knot Generator")
-    st.markdown("Create a script to generate Fibonacci-derived torus knots (e.g., (2,3)), using parametric equations and interactive 3D visualization.")
+    st.header("🪢 RVM-Enhanced Fibonacci Knot Generator")
+    st.markdown("""
+    Generate Fibonacci-derived torus knots with RVM knot invariants.
+    Features dimensional scaling and recursive projections with golden ratio corrections.
+    """)
+
+    # RVM Knot Integration
+    with st.expander("🔢 RVM Knot Invariants Foundations"):
+        st.markdown("""
+        **Dimensional Scaling**: Recursive projections string → torus → torsion with ϕ-scaling
+        **Knot Invariants**: Conserved properties under continuous deformations with RVM corrections
+        **Fibonacci Digital Roots**: RVM analysis of winding numbers and knot parameters
+        **3-6-9 Knot Topology**: Triad control in knot formation and stability
+        **Toroidal Harmonic Substrates**: Unified field theory knot interactions
+        """)
+
+        phi = (1 + sqrt(5)) / 2
+        cm = 3 / float(phi.evalf())
+        doubling_seq = vortex_doubling_sequence()
+        st.write(f"**Golden Ratio φ** = {float(phi.evalf()):.6f}")
+        st.write(f"**Corrective Constant Cm** = 3/φ = {cm:.6f}")
+        st.write(f"**RVM Doubling Sequence**: {doubling_seq}")
 
     # Calculate golden ratio
     phi = (1 + sqrt(5)) / 2
@@ -214,18 +251,96 @@ def fibonacci_knot_generator():
     st.write(f"**Generated Sequence:** {fib_seq}")
     st.write(f"**Convergence to φ:** {[fib_seq[i+1]/fib_seq[i] for i in range(min(5, len(fib_seq)-1))]}")
 
+    # RVM Digital Root Analysis
+    st.subheader("🔢 RVM Digital Root Analysis of Knot Parameters")
+    knot_params = {
+        "p (longitudinal)": p_param,
+        "q (meridional)": q_param,
+        "p Fibonacci": p_fib,
+        "q Fibonacci": q_fib,
+        "Major Radius": int(torus_major * 10),
+        "Minor Radius": int(torus_minor * 10),
+        "Rotation Angle": rotation_angle,
+        "Number of Points": num_points
+    }
+
+    param_digital_roots = {param: digital_root(val) for param, val in knot_params.items()}
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Knot Parameters:**")
+        for param, val in knot_params.items():
+            st.write(f"{param}: {val}")
+
+    with col2:
+        st.write("**Digital Roots:**")
+        for param, dr in param_digital_roots.items():
+            st.write(f"{param}: {dr}")
+
+    # RVM Vortex Knot Topology
+    st.subheader("🌀 RVM Vortex Knot Topology")
+    fig_rvm, ax_rvm = plt.subplots(figsize=(10, 8))
+
+    # Create RVM 9-point circle for knot topology mapping
+    rvm_points = [1, 2, 4, 8, 7, 5, 3, 6, 9]
+    angles = np.linspace(0, 2*np.pi, 9, endpoint=False)
+
+    # Map knot parameters to RVM vortex circle
+    for i, (point, angle) in enumerate(zip(rvm_points, angles)):
+        x_point = 3 * np.cos(angle)
+        y_point = 3 * np.sin(angle)
+
+        # Color based on 3-6-9 triad
+        if point in [3, 6, 9]:
+            color = 'red'
+        else:
+            color = 'blue'
+
+        ax_rvm.scatter(x_point, y_point, s=200, c=color, alpha=0.8, edgecolors='black')
+        ax_rvm.text(x_point, y_point, str(point), ha='center', va='center', fontsize=12, fontweight='bold')
+
+    # Draw circle
+    circle = plt.Circle((0, 0), 3, fill=False, color='gray', linestyle='--', alpha=0.5)
+    ax_rvm.add_artist(circle)
+
+    # Overlay knot topology scaled to vortex
+    scale_vortex = 2.5 / torus_major if torus_major > 0 else 1
+    x_vortex = []
+    y_vortex = []
+    colors_vortex = []
+
+    for i in range(0, len(x_standard_rot), 10):  # Sample every 10th point
+        angle = np.arctan2(y_standard_rot[i], x_standard_rot[i])
+        radius = scale_vortex * np.sqrt(x_standard_rot[i]**2 + y_standard_rot[i]**2)
+        x_vortex.append(radius * np.cos(angle))
+        y_vortex.append(radius * np.sin(angle))
+        colors_vortex.append(z_standard_rot[i])
+
+    scatter_vortex = ax_rvm.scatter(x_vortex, y_vortex, c=colors_vortex, cmap='viridis', s=10, alpha=0.6, label='Knot Topology')
+
+    ax_rvm.set_xlim(-4, 4)
+    ax_rvm.set_ylim(-4, 4)
+    ax_rvm.set_aspect('equal')
+    ax_rvm.set_title('RVM Vortex Knot Topology')
+    ax_rvm.grid(True, alpha=0.3)
+    plt.colorbar(scatter_vortex, ax=ax_rvm, label='Z-coordinate')
+
+    st.pyplot(fig_rvm)
+
     st.markdown(f"""
     **Fibonacci Knot Theory:**
     - **Torus Knots**: Closed curves on toroidal surfaces with (p,q) winding numbers
     - **Fibonacci Scaling**: Using Fibonacci numbers Fₙ for winding parameters
     - **Golden Ratio Integration**: φ-scaling provides optimal knot properties
     - **Topological Invariants**: Conserved properties under continuous deformations
+    - **RVM Integration**: Digital roots and vortex mapping reveal underlying harmonic patterns
 
     **Mathematical Properties:**
     - **Winding Numbers**: p = longitudinal windings, q = meridional windings
     - **Knot Classification**: Based on greatest common divisor gcd(p,q)
     - **Symmetry Groups**: Rotational and reflection symmetries
     - **Length Minimization**: Optimal knot configurations
+    - **Dimensional Scaling**: Recursive projections with ϕ-scaling and knot invariants
 
     **Physical Interpretations:**
     - **DNA Supercoiling**: Double helical structures with Fibonacci winding
@@ -242,4 +357,4 @@ def fibonacci_knot_generator():
 
     # Interactive exploration
     st.subheader("Interactive Exploration")
-    st.markdown("Adjust the winding parameters and rotation to explore different knot topologies and their Fibonacci relationships.")
+    st.markdown("Adjust the winding parameters and rotation to explore different knot topologies and their Fibonacci relationships with RVM harmonic patterns.")
