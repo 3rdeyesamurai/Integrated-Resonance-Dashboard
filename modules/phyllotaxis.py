@@ -135,6 +135,15 @@ def phyllotaxis_pattern_generator():
     plt.tight_layout()
     st.pyplot(fig)
 
+    # Fibonacci sequence in phyllotaxis (moved up for digital root analysis)
+    st.subheader("Fibonacci Connection")
+    fib_sequence = [1, 1]
+    for i in range(2, 15):
+        fib_sequence.append(fib_sequence[i-1] + fib_sequence[i-2])
+
+    st.write("Fibonacci sequence:", fib_sequence[:10])
+    st.write("Fibonacci ratios converging to φ:", [f"{fib_sequence[i+1]/fib_sequence[i]:.6f}" for i in range(5)])
+
     # RVM Digital Root Analysis
     st.subheader("🔢 RVM Digital Root Analysis of Fibonacci Numbers")
     fib_digital_roots = [digital_root(fib) for fib in fib_sequence[:10]]
@@ -201,15 +210,6 @@ def phyllotaxis_pattern_generator():
         st.metric("Golden Ratio φ", f"{phi_val:.6f}")
     with col4:
         st.metric("Divergence Angle", f"{angle_offset}°")
-
-    # Fibonacci sequence in phyllotaxis
-    st.subheader("Fibonacci Connection")
-    fib_sequence = [1, 1]
-    for i in range(2, 15):
-        fib_sequence.append(fib_sequence[i-1] + fib_sequence[i-2])
-
-    st.write("Fibonacci sequence:", fib_sequence[:10])
-    st.write("Fibonacci ratios converging to φ:", [f"{fib_sequence[i+1]/fib_sequence[i]:.6f}" for i in range(5)])
 
     st.markdown(f"""
     **Phyllotaxis Explanation:**
